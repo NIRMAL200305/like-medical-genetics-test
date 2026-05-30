@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Medical Genetics - Dark Mode Exam Station</title>
+    <style>
+        /* Immersive High-Contrast Dark Mode Palette */
+        :root {
+            --bg-canvas: #090d16;
+            --panel-bg: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #60a5fa;
+            --ui-success: #10b981;
+            --ui-success-bg: #064e3b;
+            --ui-success-border: #059669;
+            --ui-danger: #ef4444;
+            --ui-danger-bg: #7f1d1d;
+            --ui-danger-border: #dc2626;
+            --ui-border: #374151;
+            --card-hover: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            padding: 2.5rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .exam-frame {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            padding: 3rem;
+            position: relative;
+            border: 1px solid var(--ui-border);
+        }
+
+        .exam-header {
+            border-bottom: 1px solid var(--ui-border);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .exam-title-block h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+
+        .exam-title-block p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .live-score-tracker {
+            background: #1f2937;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid var(--ui-border);
+            color: var(--accent-blue);
+        }
+
+        .progress-timeline {
+            width: 100%;
+            height: 6px;
+            background-color: #1f2937;
+            border-radius: 10px;
+            margin-bottom: 2.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-blue);
+            transition: width 0.35s ease;
+        }
+
+        .question-card {
+            margin-bottom: 2rem;
+        }
+
+        .question-meta-tag {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.6rem;
+        }
+
+        .question-statement {
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-primary);
+            margin-bottom: 1.8rem;
+        }
+
+        .matrix-options {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .matrix-cell {
+            border: 1px solid var(--ui-border);
+            border-radius: 8px;
+            padding: 1.1rem 1.4rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: #111827;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .matrix-cell:hover:not(.locked) {
+            border-color: var(--accent-blue);
+            background-color: var(--card-hover);
+        }
+
+        .matrix-cell.correct-selection {
+            background-color: var(--ui-success-bg) !important;
+            border-color: var(--ui-success-border) !important;
+            color: #a7f3d0 !important;
+            font-weight: 600;
+        }
+
+        .matrix-cell.incorrect-selection {
+            background-color: var(--ui-danger-bg) !important;
+            border-color: var(--ui-danger-border) !important;
+            color: #fca5a5 !important;
+        }
+
+        .matrix-cell.locked {
+            cursor: not-allowed;
+            opacity: 0.85;
+        }
+
+        .diagnostic-panel {
+            margin-top: 2.5rem;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent-blue);
+            background-color: #1f2937;
+            padding: 1.8rem;
+            display: none;
+            border-top: 1px solid var(--ui-border);
+            border-right: 1px solid var(--ui-border);
+            border-bottom: 1px solid var(--ui-border);
+        }
+
+        .diagnostic-header {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .diagnostic-header.pass { color: var(--ui-success); }
+        .diagnostic-header.fail { color: var(--ui-danger); }
+
+        .analysis-itinerary {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #d1d5db;
+        }
+
+        .analysis-row {
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed var(--ui-border);
+        }
+        .analysis-row:last-child { 
+            border-bottom: none; 
+            padding-bottom: 0;
+        }
+
+        .control-row {
+            margin-top: 2.5rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: none;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent-blue-hover);
+        }
+
+        .summary-dashboard {
+            text-align: center;
+            display: none;
+            padding: 3rem 0;
+        }
+
+        .metric-circle {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            margin: 1.5rem 0;
+        }
+
+        .gate-status-box {
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .gate-status-box.unlocked {
+            background-color: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--ui-success);
+            color: #34d399;
+        }
+
+        .gate-status-box.locked-gate {
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--ui-danger);
+            color: #f87171;
+        }
+
+        .nav-btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .control-panel-btn {
+            color: white;
+            border: none;
+            padding: 1rem 2.2rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .btn-advance { background-color: var(--ui-success); }
+        .btn-retry { background-color: #4b5563; }
+        .control-panel-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="exam-frame">
+    <div class="exam-header">
+        <div class="exam-title-block">
+            <h1>Molecular Genetics & Cell Biology</h1>
+            <p>Advanced CBT Simulator &bull; 10-Question Target Gating</p>
+        </div>
+        <div class="live-score-tracker" id="live-score">Score: 0/0</div>
+    </div>
+
+    <div class="progress-timeline">
+        <div class="progress-fill" id="progress-bar"></div>
+    </div>
+
+    <div id="active-quiz-zone">
+        <div class="question-card">
+            <div class="question-meta-tag" id="question-index-tag">Question 1 of 10</div>
+            <div class="question-statement" id="question-text">Syncing database arrays...</div>
+            <ul class="matrix-options" id="options-container"></ul>
+        </div>
+
+        <div class="diagnostic-panel" id="diagnostic-display-card">
+            <div class="diagnostic-header" id="diagnostic-verdict"></div>
+            <div style="font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem; color: var(--accent-blue);">
+                Comprehensive Choice Analysis:
+            </div>
+            <div class="analysis-itinerary" id="analysis-details-box"></div>
+        </div>
+
+        <div class="control-row">
+            <button class="action-btn" id="next-step-btn" onclick="advanceTestRoute()">Proceed to Next Question &rarr;</button>
+        </div>
+    </div>
+
+    <div class="summary-dashboard" id="summary-dashboard-screen">
+        <h2>Exam Round Complete</h2>
+        <div class="metric-circle" id="summary-percentage-display">0/10</div>
+        
+        <div id="gate-status-container" class="gate-status-box"></div>
+
+        <div class="nav-btn-group">
+            <button id="btn-next-batch" class="control-panel-btn btn-advance" onclick="initializeExamSession(true)">Unlock Next 10 Questions</button>
+            <button id="btn-retry-batch" class="control-panel-btn btn-retry" onclick="initializeExamSession(false)">Retry This Batch</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Robust high-yield content extracted cleanly from the provided document
+    const masterQuestionBank = [
+        {
+            q: "Major component of DNA is:",
+            opt: ["а) histones", "б) deoxyribonucleotides", "в) proteins", "г) amino acids", "д) ribonucleotides"],
+            ans: 1,
+            exp: [
+                "<strong>а) histones:</strong> Structural packaging basic proteins, not molecular component links.",
+                "<strong>б) deoxyribonucleotides:</strong> Correct! Monomer substrates making up the DNA polymer chain.",
+                "<strong>в) proteins:</strong> Polypeptides that coordinate with structural loops but do not make up the nucleotide strand.",
+                "<strong>г) amino acids:</strong> The basic structural component units exclusively used for synthesizing functional protein structures.",
+                "<strong>д) ribonucleotides:</strong> Structural nucleotide units utilized exclusively for single or double RNA polymer strands."
+            ]
+        },
+        {
+            q: "Purine nitrogenous bases are:",
+            opt: ["а) A + T", "б) C + T", "в) A + G", "г) G + T", "д) G + C"],
+            ans: 2,
+            exp: [
+                "<strong>а) A + T:</strong> Mixes a double-ring purine structure compound directly with a single-ring pyrimidine configuration.",
+                "<strong>б) C + T:</strong> Contains exclusively single-ring pyrimidine configurations.",
+                "<strong>в) A + G:</strong> Correct! Adenine and Guanine have double heterocyclic ring infrastructures that define purines.",
+                "<strong>г) G + T:</strong> Pairs a purine (Guanine) incorrectly with a single-ring pyrimidine (Thymine).",
+                "<strong>д) G + C:</strong> Combines a purine base cleanly alongside a single-ring complementary pyrimidine base."
+            ]
+        },
+        {
+            q: "Pyrimidine nitrogenous bases are:",
+            opt: ["а) A + T", "б) G + T", "в) G + C", "г) C + T", "д) A + G"],
+            ans: 3,
+            exp: [
+                "<strong>а) A + T:</strong> A mixed structure arrangement containing a purine and a pyrimidine base side-by-side.",
+                "<strong>б) G + T:</strong> Links a double-ring purine system with a pyrimidine ring configuration.",
+                "<strong>в) G + C:</strong> Combines a double-ring purine base together with a single-ring pyrimidine structural layout.",
+                "<strong>г) C + T:</strong> Correct! Cytosine and Thymine feature single carbon-nitrogen rings, classifying them as pyrimidines.",
+                "<strong>д) A + G:</strong> Represents a clean double grouping consisting of double-ring purine structures."
+            ]
+        },
+        {
+            q: "The total amount of A + G of double-stranded DNA is equal to the total amount of:",
+            opt: ["а) C + T", "б) A + T", "в) G + T", "г) G + C", "д) A + C"],
+            ans: 0,
+            exp: [
+                "<strong>а) C + T:</strong> Correct! According to Chargaff's rules, the sum of purines (A+G) always matches the sum of pyrimidines (C+T).",
+                "<strong>б) A + T:</strong> Quantifies overall AT concentration levels rather than balancing purine-to-pyrimidine equations.",
+                "<strong>в) G + T:</strong> An unequal pairing arrangement that violates stoichiometric balance principles.",
+                "<strong>г) G + C:</strong> Dictates thermal denaturation characteristics (GC stability) instead of purine/pyrimidine parity.",
+                "<strong>д) A + C:</strong> Asymmetric mix that fails to correlate to double-stranded baseline pairing configurations."
+            ]
+        },
+        {
+            q: "Complementary pairs of nucleotides of double-stranded DNA form _____________ bonds.",
+            opt: ["а) covalent", "б) phosphodiester", "в) peptide", "г) disulfide", "д) hydrogen"],
+            ans: 4,
+            exp: [
+                "<strong>а) covalent:</strong> Strong intra-molecular electron-sharing bonds that form single chemical strands.",
+                "<strong>б) phosphodiester:</strong> Links the sugar-phosphate backbone elements vertically within a single strand.",
+                "<strong>в) peptide:</strong> Covalent amide bonds used to join amino acids during protein structural translation tracks.",
+                "<strong>г) disulfide:</strong> Strong covalent bonds joining sulfur atoms to maintain higher protein folding shapes.",
+                "<strong>д) hydrogen:</strong> Correct! Non-covalent hydrogen bonds provide the specific interaction that holds complementary bases together across the double helix."
+            ]
+        },
+        {
+            q: "Nucleotides in polynucleotide strand of DNA are connected by _______ bonds.",
+            opt: ["а) phosphodiester", "б) hydrogen", "в) peptide", "г) disulfide", "д) there is no right answer"],
+            ans: 0,
+            exp: [
+                "<strong>а) phosphodiester:</strong> Correct! Phosphodiester linkages connect the 3' carbon of one sugar to the 5' carbon of the next, forming the backbone of each strand.",
+                "<strong>б) hydrogen:</strong> Operates strictly horizontally across opposing strands to hold complementary base pairs together.",
+                "<strong>в) peptide:</strong> Amide bonds that are exclusive to amino acid chains in structural polypeptides.",
+                "<strong>г) disulfide:</strong> Specialized covalent cross-links found in complex tertiary protein foldings.",
+                "<strong>д) there is no right answer:</strong> Choice A correctly describes the covalent linkage pattern."
+            ]
+        },
+        {
+            q: "Which base pairs form triple hydrogen bonds:",
+            opt: ["а) A-T", "б) A-G", "в) С-Т", "г) U-T", "д) G-C"],
+            ans: 4,
+            exp: [
+                "<strong>а) A-T:</strong> Forms a weaker configuration stabilized by only two hydrogen bonds.",
+                "<strong>б) A-G:</strong> Unfavorable mismatch combining two bulky, double-ring purine configurations.",
+                "<strong>в) С-Т:</strong> Unfavorable configuration combining two small, single-ring pyrimidine shapes.",
+                "<strong>г) U-T:</strong> Mismatched structural pyrimidine configuration not found in normal double helix arrays.",
+                "<strong>д) G-C:</strong> Correct! Guanine-Cytosine pairings are held together by three hydrogen bonds, increasing structural stability."
+            ]
+        },
+        {
+            q: "A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",
+            opt: ["а) double-stranded DNA", "б) single-stranded DNA", "в) double-stranded RNA", "г) single-stranded RNA", "д) none of the above"],
+            ans: 1,
+            exp: [
+                "<strong>а) double-stranded DNA:</strong> Dictates strict parity (A=T, G=C). Since A (10%) does not equal T (24%), this option is ruled out.",
+                "<strong>б) single-stranded DNA:</strong> Correct! The presence of Thymine confirms it is DNA, while the unequal base frequencies indicate a single-stranded configuration.",
+                "<strong>в) double-stranded RNA:</strong> Ruled out because RNA uses Uracil instead of Thymine.",
+                "<strong>г) single-stranded RNA:</strong> Ruled out because the assay directly identifies Thymine within the viral genome.",
+                "<strong>д) none of the above:</strong> Single-stranded DNA fits the experimental baseline criteria."
+            ]
+        },
+        {
+            q: "In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",
+            opt: ["а) 5'-GCA-3'", "б) 5'-ACG-3'", "в) 5'-CGU-3'", "г) 5'-UGC-3'", "д) 5'-CGT-3'"],
+            ans: 2,
+            exp: [
+                "<strong>а) 5'-GCA-3':</strong> Represents an incorrect complementary sequence inversion sequence.",
+                "<strong>б) 5'-ACG-3':</strong> Reversed directional template tracking option.",
+                "<strong>в) 5'-CGU-3':</strong> Correct! The mRNA transcript matches the DNA coding (sense) strand exactly in direction and sequence, with Uracil replacing Thymine.",
+                "<strong>г) 5'-UGC-3':</strong> Represents the complementary anti-parallel transcription layout.",
+                "<strong>д) 5'-CGT-3':</strong> Incorrect because RNA molecules cannot contain Thymine bases."
+            ]
+        },
+        {
+            q: "Okazaki fragments are formed during the synthesis of:",
+            opt: ["а) single-stranded DNA", "б) mRNA", "в) tRNA", "г) polypeptide", "д) double-stranded DNA"],
+            ans: 4,
+            exp: [
+                "<strong>а) single-stranded DNA:</strong> Does not form a standard replication fork with coordinated leading and lagging strands.",
+                "<strong>б) mRNA:</strong> Synthesized continuously along a template strand during transcription without forming structural fragments.",
+                "<strong>в) tRNA:</strong> Small, functional non-coding RNA molecules transcribed in a single, continuous strand.",
+                "<strong>г) polypeptide:</strong> Assembled in a continuous chain by ribosomes during translation.",
+                "<strong>д) double-stranded DNA:</strong> Correct! Discontinuous synthesis on the lagging strand produces Okazaki fragments during double-stranded replication."
+            ]
+        },
+        {
+            q: "What type of inheritance is characteristic for mitochondrial DNA?",
+            opt: ["а) horizontal", "б) vertical", "в) paternal", "г) maternal", "д) no right answer"],
+            ans: 3,
+            exp: [
+                "<strong>а) horizontal:</strong> Lateral gene transfer between independent cells, typical of bacterial plasmids.",
+                "<strong>б) vertical:</strong> A generic term for passing traits down generations, which does not specify the organelle's mode of inheritance.",
+                "<strong>в) paternal:</strong> Sperm mitochondria are actively tagged with ubiquitin and destroyed inside the zygote after fertilization.",
+                "<strong>г) maternal:</strong> Correct! The zygote inherits all its cytoplasm and mitochondrial DNA exclusively from the maternal oocyte.",
+                "<strong>д) no right answer:</strong> Maternal inheritance accurately defines the transmission of mitochondrial genes."
+            ]
+        },
+        {
+            q: "Heterochromatin:",
+            opt: ["а) is responsible for all negative transcriptional control", "б) contains more DNA than does euchromatin", "в) is transcriptionally inactive", "г) clumps the X chromosome in human males", "д) occurs only during mitosis"],
+            ans: 2,
+            exp: [
+                "<strong>а) is responsible for all negative transcriptional control:</strong> Incorrect. Transcription can also be repressed on euchromatin by localized repressor elements.",
+                "<strong>б) contains more DNA than does euchromatin:</strong> Incorrect. It is simply more tightly packed, not inherently containing a greater volume of DNA.",
+                "<strong>в) is transcriptionally inactive:</strong> Correct! Heterochromatin is highly condensed, blocking access for transcription factors and RNA polymerase.",
+                "<strong>г) clumps the X chromosome in human males:</strong> Incorrect. It condenses the inactive X chromosome into a Barr body in human females, not males.",
+                "<strong>д) occurs only during mitosis:</strong> Incorrect. It persists clearly through interphase to maintain structural gene silencing."
+            ]
+        },
+        {
+            q: "What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",
+            opt: ["а) chromatin fiber", "б) nucleosome", "в) solenoid", "г) chromatid", "д) chromosome"],
+            ans: 1,
+            exp: [
+                "<strong>а) chromatin fiber:</strong> A wider structural fiber built by winding arrays of individual nucleosomes.",
+                "<strong>б) nucleosome:</strong> Correct! The nucleosome is the fundamental repeating unit of eukaryotic chromatin, containing ~146 bp of DNA wrapped around a histone octamer.",
+                "<strong>в) solenoid:</strong> A higher-order helical configuration formed when nucleosomes wrap into a 30-nm fiber.",
+                "<strong>г) chromatid:</strong> One of the two parallel strands of a replicated chromosome joined at the centromere.",
+                "<strong>д) chromosome:</strong> The most condensed state of genetic material, visible during nuclear division phases."
+            ]
+        },
+        {
+            q: "Chromosome with the same length of the arms is called:",
+            opt: ["а) metacentric", "б) acrocentric", "в) submetacentric", "г) telocentric", "д) autosome"],
+            ans: 0,
+            exp: [
+                "<strong>а) metacentric:</strong> Correct! Metacentric chromosomes have a centrally located centromere, creating arms of equal length.",
+                "<strong>б) acrocentric:</strong> The centromere is located near one end, resulting in very short p arms and long q arms.",
+                "<strong>в) submetacentric:</strong> The centromere is slightly off-center, creating a moderate length difference between the arms.",
+                "<strong>г) telocentric:</strong> The centromere is at the very tip, eliminating the short arms completely.",
+                "<strong>д) autosome:</strong> A descriptive term for any non-sex chromosome, independent of centromere position."
+            ]
+        },
+        {
+            q: "How many chromosomes does a human somatic cell have in the presynthetic period of the mitotic cycle?",
+            opt: ["а) 46", "б) 92", "в) 47", "г) 45", "д) 23"],
+            ans: 0,
+            exp: [
+                "<strong>а) 46:</strong> Correct! During the presynthetic (G1) phase, human somatic cells maintain their diploid number of 46 chromosomes before replication.",
+                "<strong>б) 92:</strong> This count represents the total number of individual chromatids present after replication is complete.",
+                "<strong>в) 47:</strong> An abnormal total seen in trisomies (such as Down syndrome or Klinefelter syndrome).",
+                "<strong>г) 45:</strong> An abnormal total seen in monosomies (such as Turner syndrome).",
+                "<strong>д) 23:</strong> The haploid number of chromosomes found in human gametes."
+            ]
+        }
+    ];
+
+    let currentPool = [];
+    let currentQuestionIndex = 0;
+    let accumulatedScore = 0;
+    let answerLockStatus = false;
+
+    // Advanced batch management engine
+    function initializeExamSession(isAdvancingNext) {
+        // If retrying, we reuse the same selection or shuffle a fresh batch
+        // To satisfy "go next 10 questions", we pull a randomized subset of 10
+        let pool = [...masterQuestionBank];
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        
+        currentPool = pool.slice(0, 10);
+        currentQuestionIndex = 0;
+        accumulatedScore = 0;
+        
+        document.getElementById("active-quiz-zone").style.display = "block";
+        document.getElementById("summary-dashboard-screen").style.display = "none";
+        
+        renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+        answerLockStatus = false;
+        document.getElementById("diagnostic-display-card").style.display = "none";
+        document.getElementById("next-step-btn").style.display = "none";
+        
+        const activeData = currentPool[currentQuestionIndex];
+        
+        document.getElementById("question-index-tag").textContent = `Question ${currentQuestionIndex + 1} of 10`;
+        document.getElementById("question-text").textContent = activeData.q;
+        
+        const progressPercentage = (currentQuestionIndex / 10) * 100;
+        document.getElementById("progress-bar").style.width = `${progressPercentage}%`;
+        document.getElementById("live-score").textContent = `Score: ${accumulatedScore}/${currentQuestionIndex}`;
+
+        const optionsContainer = document.getElementById("options-container");
+        optionsContainer.innerHTML = "";
+        
+        activeData.opt.forEach((variantText, idx) => {
+            const cellElement = document.createElement("li");
+            cellElement.className = "matrix-cell";
+            cellElement.textContent = variantText;
+            cellElement.onclick = () => verifyUserChoice(idx, cellElement);
+            optionsContainer.appendChild(cellElement);
+        });
+    }
+
+    function verifyUserChoice(selectedIdx, selectedElement) {
+        if (answerLockStatus) return;
+        answerLockStatus = true;
+        
+        const activeQuestion = currentPool[currentQuestionIndex];
+        const containerChildren = document.getElementById("options-container").children;
+        
+        for (let i = 0; i < containerChildren.length; i++) {
+            containerChildren[i].classList.add("locked");
+        }
+        
+        const isCorrect = (selectedIdx === activeQuestion.ans);
+        if (isCorrect) {
+            selectedElement.classList.add("correct-selection");
+            accumulatedScore++;
+            exposeDiagnosticFeedback(true);
+        } else {
+            selectedElement.classList.add("incorrect-selection");
+            containerChildren[activeQuestion.ans].classList.add("correct-selection");
+            exposeDiagnosticFeedback(false);
+        }
+        
+        document.getElementById("live-score").textContent = `Score: ${accumulatedScore}/${currentQuestionIndex + 1}`;
+        document.getElementById("next-step-btn").style.display = "block";
+    }
+
+    function exposeDiagnosticFeedback(wasCorrectChoice) {
+        const panel = document.getElementById("diagnostic-display-card");
+        const verdictHeadline = document.getElementById("diagnostic-verdict");
+        const itineraryContainer = document.getElementById("analysis-details-box");
+        const activeQuestion = currentPool[currentQuestionIndex];
+        
+        panel.style.display = "block";
+        itineraryContainer.innerHTML = "";
+        
+        if (wasCorrectChoice) {
+            verdictHeadline.className = "diagnostic-header pass";
+            verdictHeadline.innerHTML = "&#10004; Correct Choice Verified";
+        } else {
+            verdictHeadline.className = "diagnostic-header fail";
+            verdictHeadline.innerHTML = "&#10008; Incorrect Choice Recorded";
+        }
+        
+        activeQuestion.exp.forEach(rationaleHTML => {
+            const rowElement = document.createElement("div");
+            rowElement.className = "analysis-row";
+            rowElement.innerHTML = rationaleHTML;
+            itineraryContainer.appendChild(rowElement);
+        });
+    }
+
+    function advanceTestRoute() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < 10) {
+            renderCurrentQuestion();
+        } else {
+            renderFinalPerformanceSummary();
+        }
+    }
+
+    // Gating verification subsystem logic
+    function renderFinalPerformanceSummary() {
+        document.getElementById("active-quiz-zone").style.display = "none";
+        document.getElementById("progress-bar").style.width = "100%";
+        
+        const summaryScreen = document.getElementById("summary-dashboard-screen");
+        summaryScreen.style.display = "block";
+        
+        document.getElementById("summary-percentage-display").textContent = `${accumulatedScore} / 10`;
+        
+        const gateStatusBox = document.getElementById("gate-status-container");
+        const advanceBtn = document.getElementById("btn-next-batch");
+        const retryBtn = document.getElementById("btn-retry-batch");
+
+        // Gating Check: MUST be strictly greater than 5 correct answers (> 5 means 6 or more)
+        if (accumulatedScore > 5) {
+            gateStatusBox.className = "gate-status-box unlocked";
+            gateStatusBox.innerHTML = "<strong>ADVANCEMENT UNLOCKED!</strong> You successfully scored more than 5 answers correct in this round. You are cleared to proceed to the next 10 questions.";
+            advanceBtn.style.display = "inline-block";
+            retryBtn.style.display = "inline-block"; // User can still choose to retry if desired
+            advanceBtn.textContent = "Load Next 10 Questions";
+        } else {
+            gateStatusBox.className = "gate-status-box locked-gate";
+            gateStatusBox.innerHTML = "<strong>ACCESS DENIED.</strong> Your score is not high enough. You must score more than 5 correct answers to unlock the next 10 questions. Please retry this batch to improve your score.";
+            advanceBtn.style.display = "none";
+            retryBtn.style.display = "inline-block";
+            retryBtn.textContent = "Retry This Round";
+        }
+    }
+
+    window.onload = () => initializeExamSession(false);
+</script>
+
+</body>
+</html>
