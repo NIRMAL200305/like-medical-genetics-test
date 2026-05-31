@@ -3,38 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Medical Genetics - Dark Mode Exam Station</title>
+    <title>Medical Genetics & Cell Biology Simulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        /* Immersive High-Contrast Dark Mode Palette */
-        :root {
-            --bg-canvas: #090d16;
-            --panel-bg: #111827;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --accent-blue: #3b82f6;
-            --accent-blue-hover: #60a5fa;
-            --ui-success: #10b981;
-            --ui-success-bg: #064e3b;
-            --ui-success-border: #059669;
-            --ui-danger: #ef4444;
-            --ui-danger-bg: #7f1d1d;
-            --ui-danger-border: #dc2626;
-            --ui-border: #374151;
-            --card-hover: #1f2937;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-slate-900">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-teal-500 text-slate-950 p-2 rounded-xl font-bold text-xs tracking-wider">MG-01</div>
+                <div>
+                    <h1 class="text-sm font-bold tracking-tight text-slate-200">Cell Biology & Genetics</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">Sequential Exam Simulator</p>
+                </div>
+            </div>
+            <button id="reset-btn" onclick="location.reload()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 transition px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 cursor-pointer">
+                Restart
+            </button>
+        </div>
+    </header>
 
-        body {
-            background-color: var(--bg-canvas);
-            color: var(--text-primary);
-            padding: 2.5rem 1rem;
-            min-height: 100vh;
+    <!-- Main Simulator Area -->
+    <main class="max-w-3xl w-full mx-auto px-4 py-6 flex-grow flex flex-col justify-center">
+
+        <!-- Quiz Interface Container -->
+        <div id="quiz-view" class="space-y-4">
+            <!-- Progress Info Bar -->
+            <div class="flex justify-between items-center text-xs text-slate-400 font-semibold px-1">
+                <span id="progress-text">Loading Progress...</span>
+                <span id="score-counter" class="text-teal-400">Score: 0/0</span>
+            </div>
+            
+            <!-- Progress Meter -->
+            <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div id="progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Active Card -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+                <div class="space-y-2">
+                    <div class="inline-flex text-[10px] font-bold tracking-widest text-slate-400 uppercase bg-slate-950 px-2.5 py-1 rounded-md border border-slate-800" id="q-original-num">ITEM #1</div>
+                    <p id="question-text" class="text-slate-100 font-medium leading-relaxed text-base sm:text-lg">Loading question data...</p>
+                </div>
+
+                <!-- Answer Grid -->
+                <div id="options-container" class="space-y-2.5">
+                    <!-- Choices load here dynamically -->
+                </div>
+            </div>
+
+            <!-- Action Controls Row -->
+            <div class="flex justify-end">
+                <button id="next-btn" disabled class="cursor-not-allowed opacity-50 text-sm font-bold bg-slate-800 border border-slate-700 text-slate-400 px-6 py-2.5 rounded-xl transition duration-200 flex items-center space-x-2">
+                    <span>Next Item</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Dashboard View -->
+        <div id="result-view" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-6">
+            <div class="space-y-2">
+                <div class="inline-flex p-3 bg-teal-500/10 text-teal-400 rounded-full mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white">Review Complete!</h2>
+                <p class="text-xs text-slate-400">Your final score analysis has been calculated.</p>
+            </div>
+
+            <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 max-w-sm mx-auto grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Correct Answers</p>
+                    <p id="final-score" class="text-2xl font-black text-teal-400 mt-1">0/0</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Accuracy Level</p>
+                    <p id="final-percent" class="text-2xl font-black text-slate-200 mt-1">0%</p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="cursor-pointer text-sm font-bold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 px-6 py-2.5 rounded-xl transition duration-200 shadow-md shadow-teal-500/10">
+                Initialize New Round
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer Meta Info -->
+    <footer class="text-center py-4 text-[10px] font-semibold tracking-wider text-slate-600 border-t border-slate-900 bg-slate-950">
+        VERIFIED ACADEMIC SYLLABUS DATASET • OPEN REPOSITORIES SECURE HOST
+    </footer>
+
+    <!-- Database Script -->
+    <script>
+        const activePool = [
+            {q:"Major component of DNA is:",o:["histones","deoxyribonucleotides","proteins","amino acids","ribonucleotides"],a:1},
+            {q:"Purine nitrogenous bases are:",o:["A + T","C + T","A + G","G + T","G + C"],a:2},
+            {q:"Pyrimidine nitrogenous bases are:",o:["A + T","G + T","G + C","C + T","A + G"],a:3},
+            {q:"The total amount of A + G of double-stranded DNA is equal to the total amount of:",o:["C + T","A + T","G + T","G + C","A + C"],a:0},
+            {q:"Complementary pairs of nucleotides of double-stranded DNA form .............bonds.",o:["covalent","phosphodiester","peptide","disulfide","hydrogen"],a:4},
+            {q:"Nucleotides in polynucleotide strand of DNA are connected by .......bonds.",o:["phosphodiester","hydrogen","peptide","disulfide","there is no right answer"],a:0},
+            {q:"Which base pairs form triple hydrogen bonds:",o:["A-T","A-G","С-Т","U-T","G-C"],a:4},
+            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","none of the above"],a:1},
+            {q:"In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",o:["5'-GCA-3'","5'-ACG-3'","5'-CGU-3'","5'-UGC-3'","5'-CGT-3'"],a:2},
+            {q:"Okazaki fragments are formed during the synthesis of:",o:["single-stranded DNA","mRNA","tRNA","polypeptide","double-stranded DNA"],a:4},
+            {q:"What type of inheritance is characteristic for mitochondrial DNA?",o:["horizontal","vertical","paternal","maternal","no right answer"],a:3},
+            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in human males","occurs only during mitosis"],a:2},
+            {q:"What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",o:["chromatin fiber","nucleosome","solenoid","chromatid","chromosome"],a:1},
+            {q:"Chromosome with the same length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:0},
+            {q:"Chromosome with slightly different length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:2},
+            {q:"Y-chromosome is:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:1},
+            {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:3},
+            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction on the chromosome","the ratio of the centromere size to the length of the chromosome","the ratio of the length of the short arm to the length of the chromosome"],a:4},
+            {q:"DNA synthesis occurs during ........ period of the mitotic cycle.",o:["presynthetic","premitotic","synthetic","postsynthetic","mitotic division"],a:2},
+            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not synthesized?",o:["synthetic","premitotic","telophase","presynthetic","anaphase"],a:3},
+            {q:"How many chromosomes does a human somatic cell have in the presynthetic period of the mitotic cycle?",o:["46","92","47","45","23"],a:0},
+            {q:"How many DNA molecules does a human somatic cell have in the presynthetic period of the mitotic cycle?",o:["92","47","45","46","23"],a:3},
+            {q:"How many DNA molecules does a human somatic cell have in the postsynthetic period of the mitotic cycle?",o:["46","92","47","45","23"],a:1},
+            {q:"How many chromosomes does a human somatic cell have in the postsynthetic period of the mitotic cycle?",o:["92","47","45","23","46"],a:4},
+            {q:"What are the consequences of the DNA polymerase damage during the mitotic cycle?",o:["damage of the formation of the spindle division","damage of the cytokinesis","damage of the DNA replication","decrease in the duration of mitosis","increase in the duration of mitosis"],a:2},
+            {q:"What are the consequences of the helicase enzyme damage during the mitotic cycle?",o:["damage of the formation of the spindle division","damage of the cytokinesis","decrease in the duration of mitosis","increase in the duration of mitosis","damage of the DNA replication"],a:4},
+            {q:"If a lymphocyte is damaged by an RNA-containing virus, the direction of the information flow in the cell will be:",o:["RNA → DNA → mRNA → polypeptide","DNA → mRNA → polypeptide → DNA","DNA → polypeptide → mRNA","mRNA → polypeptide → DNA","polypeptide → RNA → DNA → mRNA"],a:0},
+            {q:"The genetic material in eukaryotic cells is:",o:["nucleic acid","chromatin","polypeptide","circular DNA molecule","nucleoid"],a:1},
+            {q:"What is the name of a molecule in the cell nucleus, capable to self-reproduction and storage of genetic information?",o:["rRNA","mRNA","histon","DNA","hemoglobin"],a:3},
+            {q:"DNA polymerase have:",o:["5'-3' polymerase activity","3' polymerase activity","3'-5' exonuclease activity","5'-3' exonuclease activity","endonuclease activity"],a:0},
+            {q:"Under what type of DNA replication each of its strands becomes a template for the synthesis of a new strand.",o:["analogical","semi-conservative","identical","dispersed","conservative"],a:1},
+            {q:"In case of a semi-conservative mechanism of DNA replication, the nucleotides of the synthesized DNA strand are complementary to the nucleotides of:",o:["RNA polymerase enzyme","DNA polymerase enzyme","sence codons","introns of a gene","maternal DNA strand"],a:4},
+            {q:"What enzyme breaks down the hydrogen bonds and unwinds the DNA helix during replication?",o:["RNA-polymerase","helicase","ligase","restrictase","DNA-polymerase"],a:1},
+            {q:"Maximum damage to DNA is caused by:",o:["UV-rays","increased on 10 degrees temperature","X-rays","sulfanilamides","formaldehyde"],a:2},
+            {q:"Codon consists of:",o:["2 base pairs","3 base pairs","4 base pairs","5 base pairs","two nucleotides"],a:1},
+            {q:"What is the phenomenon of recovery a damaged part of the DNA molecule using specific enzymes?",o:["replication","initiation","termination","duplication","repair"],a:4},
+            {q:"Ultraviolet rays cause the formation of pyrimidine dimers in the DNA molecule. Specify them:",o:["adenine and thymine","guanine and thymine","thymine and cytosine","guanine and cytosine","adenine and guanine"],a:2},
+            {q:"Transcription is:",o:["one of the forms of exchange of genetic information","the process of reading genetic information from DNA to mRNA","the process of protein synthesis from the mRNA template","a substitution of purine bases in the DNA molecule","the amino acid transport by tRNA"],a:1},
+            {q:"Translation is:",o:["the process of protein synthesis from the mRNA template","one of the forms of exchange of genetic information","the process of reading genetic information from DNA to mRNA","a substitution of purine bases in the DNA molecule","the amino acid transport by tRNA"],a:0},
+            {q:"Xeroderma pigmentosum is a rare autosomal recessive condition that includes abnormal skin pigmentation and acute sensitivity to sunlight. What process is disrupted as a result of this defect:",o:["DNA replication","DNA repair","translation","transcription","initiation"],a:1},
+            {q:"A segment of a eukaryotic gene that is not represented in the mature messenger RNA is known as:",o:["poly(A) tail","TATA box","intron","exon","plasmid"],a:2},
+            {q:"Which of the following is not a post transcriptional modification of mRNA?",o:["splicing","5' capping","3' polyadenylation","processing","glycolysation"],a:4},
+            {q:"The template for the synthesis of mRNA molecule in bacteria is:",o:["a part of one of the DNA strands","the DNA molecule","one of the strands of the DNA molecule","a strand of DNA molecules without introns","a strand of DNA molecules without exons"],a:0},
+            {q:"What is the structure of pro-mRNA molecule in eukaryotes?",o:["intron-intron-exon","exon-intron-exon","exon-exon-intron","intron-intron","exon-exon"],a:1},
+            {q:"The sequence of amino acids in the molecule of human insulin is encoded by:",o:["the sequence of structural genes","the sequence of nucleotides of the DNA molecule","the sequence of nucleotides in the exon regions of the gene","a certain alternation of exons and introns","the sequence of nucleotides in the introns of the gene"],a:2},
+            {q:"What is the process of mRNA synthesis on the DNA template?",o:["replication","elongation","translation","transcription","termination"],a:3},
+            {q:"What process is disturbed in case of inhibition of RNA polymerase by toxins:",o:["transcription","replication","repair","translation","processing"],a:0},
+            {q:"What mRNA codons will be complementary to triplets ATG-CGT of DNA molecule?",o:["AUG-CGU","UAC-GCA","ATG-CGT","UAG-CGU","TAC-GCA"],a:1},
+            {q:"Transcription stops after RNA polymerase reaches a nucleotides sequence of DNA called:",o:["operator","repressor","regulator","terminator","stop codon"],a:3},
+            {q:"An mRNA molecule contains both exons and introns due to the absence of:",o:["splicing","replication","transcription","translation","recombination"],a:0},
+            {q:"The set of stages of the mRNA maturation is called:",o:["replication and recombination","transcription and recombination","translation","termination","processing and splicing"],a:4},
+            {q:"What process precedes the translation in eukaryotes, leading to a decrease in the number of nucleotides in the mRNA molecule:",o:["initiation","splicing","repair","mutation","replication"],a:1},
+            {q:"The removal of introns and joining of exons of mRNA in eukaryotes is called:",o:["transcription","repair","splicing","replication","reverse transcription"],a:2},
+            {q:"Splicing enzymes are not synthesized in the cell. What is the reason for the termination of protein biosynthesis in this case?",o:["ATP is not synthesized","rRNA is not formed","amino acids are not activated","mature mRNA is not formed","amino acid transport is disrupted"],a:3},
+            {q:"Stop codon is:",o:["UAG","UCA","UAC","UCC","UGG"],a:0},
+            {q:"What property of the genetic code allows applying the retroviruses as vectors in gene therapy?",o:["specificity","collinearity","continuity","redundancy","universatility"],a:4},
+            {q:"Several triplets are changed in the gene, but despite this, the cell continued to synthesize the same protein. What property of the genetic code can explain this phenomenon?",o:["universatility","triplet structure","redundancy","non-overlaping","collinearity"],a:2},
+            {q:"What property of the genetic code is manifested if the mutation of the structural gene does not lead to the replacement of amino acids in the protein?",o:["mutability","collinearity","triplet structure","redundancy","universatility"],a:3},
+            {q:"Amino acids are encoded by a different number of triplets of the mRNA molecule (from one to six). What is the name of this property of the genetic code?",o:["universatility","collinearity","triplet structure","mutability","redundancy"],a:4},
+            {q:"A single amino acid is encoded by three:",o:["triplets","nucleotides","genes","codons","proteins"],a:1},
+            {q:"The polypeptide consists of 24 amino acids. How many nucleotides are in the template of mature mRNA?",o:["72","24","26","144","48"],a:0},
+            {q:"Some triplets of mRNA (UAA, UAG, UGA) do not encode amino acids, but are able to terminate translation. These triplets are called:",o:["operators","anticodons","stop codons","exons","introns"],a:2},
+            {q:"The sense codons in the process of polypeptide biosynthesis are signals for:",o:["joining of specific exons","start of transcription","termination of transcription","joining of RNA polymerase","joining of a specific amino acid"],a:4},
+            {q:"The polypeptide consists of 54 amino acids. How many codons are in the template of mature mRNA?",o:["54","27","108","162","44"],a:0},
+            {q:"In eukaryotes, the amino acid sequence in the polypeptide will correspond to the sequence of:",o:["tRNA triplets","rRNA triplets","mRNA codons","triplets of pro-mRNA","DNA nucleotides"],a:2},
+            {q:"What process provides the expression of genetic information in the polypeptide chain?",o:["formation of rRNA","translation","formation of tRNA","formation of mRNA","replication"],a:1},
+            {q:"The patient revealed a decrease of magnesium ions, which are necessary for the attachment of ribosomes to the granular endoplasmic reticulum. It is known that this leads to protein biosynthesis damage. The damage occurs at the stage of:",o:["transcription","replication","activation of amino acids","termination","translation"],a:4},
+            {q:"What stage of protein synthesis inhibits antibiotics?",o:["processing","translation","reduplication","splicing","replication"],a:1},
+            {q:"Which triplet of tRNA will be complementary to AUG triplet of mRNA?",o:["UАC","AАA","ТUC","UGU","CUC"],a:0},
+            {q:"The mRNA codons UAA, UAG, UGA are not recognized by any tRNA during the process of polypeptide biosynthesis. These are signals for:",o:["posttranslational modification","elongation","termination","initiation","start of transcription"],a:2},
+            {q:"Translation during the biosynthesis of viral proteins in a eukaryotic cell is carried out in (by):",o:["the nucleus","lysosomes","the smooth endoplasmic reticulum","ribosomes","the centr            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
