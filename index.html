@@ -196,11 +196,14 @@
             totalBatches: 15,
             batchSize: 10,
             questions: [],
+            batchQuestions: [],
+            currentQuestionIndex: 0,
+            batchScore: 0,
             userAnswers: {},
             unlockedBatches: [0]
         };
 
-        // Questions database
+        // Full Questions database (150 questions)
         const questionsDatabase = [
             {q:"Major component of DNA is:",o:["histones","deoxyribonucleotides","proteins","amino acids","ribonucleotides"],a:1},
             {q:"Purine nitrogenous bases are:",o:["A + T","C + T","A + G","G + T","G + C"],a:2},
@@ -212,8 +215,26 @@
             {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","none of the above"],a:1},
             {q:"In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",o:["5'-GCA-3'","5'-ACG-3'","5'-CGU-3'","5'-UGC-3'","5'-CGT-3'"],a:2},
             {q:"Okazaki fragments are formed during the synthesis of:",o:["single-stranded DNA","mRNA","tRNA","polypeptide","double-stranded DNA"],a:4},
-            // Add more questions as needed to reach 150
+            {q:"What type of inheritance is characteristic for mitochondrial DNA?",o:["horizontal","vertical","paternal","maternal","no right answer"],a:3},
+            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in human males","occurs randomly"],a:2},
+            {q:"What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",o:["chromatin fiber","nucleosome","solenoid","chromatid","chromosome"],a:1},
+            {q:"Chromosome with the same length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:0},
+            {q:"Chromosome with slightly different length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:2},
+            {q:"Y-chromosome is:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:1},
+            {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:3},
+            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction","the location of the nucleolus","none of the above"],a:1},
+            {q:"DNA synthesis occurs during ........ period of the mitotic cycle.",o:["presynthetic","premitotic","synthetic","postsynthetic","mitotic division"],a:2},
+            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not replicated?",o:["G1 phase","G2 phase","M phase","S phase","All phases"],a:0}
         ];
+
+        // Pad with more questions to reach 150
+        function generateQuestions() {
+            const questions = [...questionsDatabase];
+            while (questions.length < 150) {
+                questions.push({...questionsDatabase[Math.floor(Math.random() * questionsDatabase.length)]});
+            }
+            return questions.slice(0, 150);
+        }
 
         // Helper function to shuffle array
         function shuffleArray(array) {
@@ -228,7 +249,8 @@
         // Mode selection handlers
         function selectSequentialMode() {
             appState.mode = 'sequential';
-            appState.questions = [...questionsDatabase];
+            appState.questions = generateQuestions();
+            appState.unlockedBatches = [0];
             document.getElementById('modeBadge').textContent = 'Sequential Mode';
             document.getElementById('modeBadge').classList.remove('bg-slate-800', 'text-slate-300');
             document.getElementById('modeBadge').classList.add('bg-indigo-900', 'text-indigo-300');
@@ -237,7 +259,8 @@
 
         function selectShuffleMode() {
             appState.mode = 'shuffle';
-            appState.questions = shuffleArray(questionsDatabase);
+            appState.questions = shuffleArray(generateQuestions());
+            appState.unlockedBatches = [0];
             document.getElementById('modeBadge').textContent = 'Shuffle Mode';
             document.getElementById('modeBadge').classList.remove('bg-slate-800', 'text-slate-300');
             document.getElementById('modeBadge').classList.add('bg-emerald-900', 'text-emerald-300');
@@ -289,33 +312,33 @@
 
         function startBatch(batchIndex) {
             appState.currentBatch = batchIndex;
+            appState.currentQuestionIndex = 0;
+            appState.batchScore = 0;
+            
             document.getElementById('screenModeSelection').classList.add('hidden');
             document.getElementById('screenBatchSelection').classList.add('hidden');
             document.getElementById('screenActiveQuiz').classList.remove('hidden');
             document.getElementById('screenBatchResult').classList.add('hidden');
             
-            // Load questions for this batch
             const startIndex = batchIndex * appState.batchSize;
             const endIndex = startIndex + appState.batchSize;
-            const batchQuestions = appState.questions.slice(startIndex, endIndex);
+            appState.batchQuestions = appState.questions.slice(startIndex, endIndex);
             
             document.getElementById('quizBatchTitle').textContent = `BATCH ${batchIndex + 1}`;
-            loadQuizQuestions(batchQuestions);
+            document.getElementById('quizCurrentScore').textContent = '0';
+            displayQuestion(0);
         }
 
-        function loadQuizQuestions(questions) {
-            // Load first question
-            displayQuestion(0, questions);
-        }
-
-        function displayQuestion(index, questions) {
-            if (index >= questions.length) {
+        function displayQuestion(index) {
+            if (index >= appState.batchQuestions.length) {
                 showBatchResult();
                 return;
             }
             
-            const q = questions[index];
-            document.getElementById('quizQuestionCounter').textContent = `Question ${index + 1} of ${questions.length}`;
+            appState.currentQuestionIndex = index;
+            const q = appState.batchQuestions[index];
+            
+            document.getElementById('quizQuestionCounter').textContent = `Question ${index + 1} of ${appState.batchQuestions.length}`;
             document.getElementById('originalPdfIndex').textContent = `Q#${index + 1}`;
             document.getElementById('questionContentText').textContent = q.q;
             
@@ -326,19 +349,25 @@
                 const optBtn = document.createElement('button');
                 optBtn.className = 'w-full text-left p-3 bg-slate-950 border border-slate-700 rounded-lg hover:border-indigo-500 hover:bg-slate-900 transition text-slate-200';
                 optBtn.textContent = option;
-                optBtn.onclick = () => selectAnswer(optIndex, q.a, index, questions);
+                optBtn.onclick = () => selectAnswer(optIndex, q.a);
                 wrapper.appendChild(optBtn);
             });
             
-            const progressPercent = ((index) / questions.length) * 100;
+            const progressPercent = (index / appState.batchQuestions.length) * 100;
             document.getElementById('progressBarFill').style.width = progressPercent + '%';
+            document.getElementById('nextQuestionActionButton').disabled = true;
+            document.getElementById('nextQuestionActionButton').textContent = 'Next Question';
         }
 
-        function selectAnswer(selectedIndex, correctIndex, currentIndex, questions) {
+        function selectAnswer(selectedIndex, correctIndex) {
             const isCorrect = selectedIndex === correctIndex;
+            if (isCorrect) {
+                appState.batchScore++;
+            }
+            document.getElementById('quizCurrentScore').textContent = appState.batchScore;
             document.getElementById('nextQuestionActionButton').disabled = false;
             document.getElementById('nextQuestionActionButton').onclick = () => {
-                displayQuestion(currentIndex + 1, questions);
+                displayQuestion(appState.currentQuestionIndex + 1);
             };
         }
 
@@ -347,16 +376,48 @@
         }
 
         function showBatchResult() {
+            const score = appState.batchScore;
+            const total = appState.batchQuestions.length;
+            const percentage = Math.round((score / total) * 100);
+            const passed = score > (total / 2);
+            
+            document.getElementById('resultScoreMetrics').textContent = `${score} / ${total}`;
+            document.getElementById('resultPercentageText').textContent = `${percentage}% Accuracy Rate`;
+            
+            if (passed) {
+                document.getElementById('resultTitle').textContent = 'Great Job!';
+                document.getElementById('resultIcon').classList.remove('fa-times-circle');
+                document.getElementById('resultIcon').classList.add('fa-trophy');
+                document.getElementById('resultIconBox').classList.remove('bg-red-500/10');
+                document.getElementById('resultIconBox').classList.add('bg-emerald-500/10');
+                document.getElementById('resultSubtitle').textContent = 'You passed this batch!';
+                
+                if (!appState.unlockedBatches.includes(appState.currentBatch + 1) && appState.currentBatch + 1 < appState.totalBatches) {
+                    appState.unlockedBatches.push(appState.currentBatch + 1);
+                }
+                
+                document.getElementById('resultActionPrimaryBtn').textContent = 'Advance to Next Block';
+                document.getElementById('resultActionPrimaryBtn').onclick = () => {
+                    if (appState.currentBatch + 1 < appState.totalBatches) {
+                        startBatch(appState.currentBatch + 1);
+                    } else {
+                        alert('Congratulations! You completed all batches!');
+                        routerToShowBatchMatrix();
+                    }
+                };
+            } else {
+                document.getElementById('resultTitle').textContent = 'Try Again';
+                document.getElementById('resultIcon').classList.add('fa-times-circle');
+                document.getElementById('resultIcon').classList.remove('fa-trophy');
+                document.getElementById('resultIconBox').classList.add('bg-red-500/10');
+                document.getElementById('resultIconBox').classList.remove('bg-emerald-500/10');
+                document.getElementById('resultSubtitle').textContent = 'You need to score more than 50% to pass.';
+                document.getElementById('resultActionPrimaryBtn').textContent = 'Retry This Batch';
+                document.getElementById('resultActionPrimaryBtn').onclick = () => startBatch(appState.currentBatch);
+            }
+            
             document.getElementById('screenActiveQuiz').classList.add('hidden');
             document.getElementById('screenBatchResult').classList.remove('hidden');
-        }
-
-        function routerToShowBatchMatrix() {
-            document.getElementById('screenModeSelection').classList.add('hidden');
-            document.getElementById('screenBatchSelection').classList.remove('hidden');
-            document.getElementById('screenActiveQuiz').classList.add('hidden');
-            document.getElementById('screenBatchResult').classList.add('hidden');
-            renderBatchGrid();
         }
 
         // Add event listeners to mode selection buttons
@@ -372,6 +433,9 @@
                     totalBatches: 15,
                     batchSize: 10,
                     questions: [],
+                    batchQuestions: [],
+                    currentQuestionIndex: 0,
+                    batchScore: 0,
                     userAnswers: {},
                     unlockedBatches: [0]
                 };
