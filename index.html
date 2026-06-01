@@ -24,6 +24,101 @@
             background: #475569;
             border-radius: 3px;
         }
+        
+        /* Glass morphism effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Modern button styles */
+        .btn-modern {
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-modern:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-modern:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .btn-modern:disabled {
+            cursor: not-allowed;
+        }
+        
+        /* Option button styles */
+        .option-btn {
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .option-btn:hover:not(.selected):not(.correct):not(.incorrect) {
+            background-color: rgba(99, 102, 241, 0.2);
+            border-color: rgb(129, 140, 248);
+            transform: translateX(4px);
+        }
+        
+        .option-btn.selected {
+            background: rgba(129, 140, 248, 0.3) !important;
+            border-color: rgb(129, 140, 248) !important;
+            box-shadow: 0 0 20px rgba(129, 140, 248, 0.4), inset 0 0 10px rgba(129, 140, 248, 0.2);
+        }
+        
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: rgb(34, 197, 94) !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4), inset 0 0 10px rgba(34, 197, 94, 0.2);
+            color: rgb(134, 239, 172) !important;
+        }
+        
+        .option-btn.incorrect {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: rgb(239, 68, 68) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), inset 0 0 10px rgba(239, 68, 68, 0.2);
+            color: rgb(252, 165, 165) !important;
+        }
+        
+        .option-icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        
+        /* Feedback animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #feedbackContainer {
+            animation: slideIn 0.3s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased transition-colors duration-300">
@@ -43,7 +138,7 @@
                 <span id="modeBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
                     Select Mode
                 </span>
-                <button id="resetAppBtn" class="text-xs bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 px-3 py-1.5 rounded-md border border-slate-700 transition" title="Reset all progress">
+                <button id="resetAppBtn" class="btn-modern text-xs bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 px-4 py-2 border border-slate-700 transition">
                     <i class="fa-solid fa-rotate-left mr-1"></i> Reset Progress
                 </button>
             </div>
@@ -59,7 +154,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-                <button id="btnChooseSequential" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 rounded-xl transition">
+                <button id="btnChooseSequential" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 rounded-2xl btn-modern transition">
                     <div class="bg-indigo-950 text-indigo-400 p-3 rounded-lg mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                         <i class="fa-solid fa-list-ol text-xl"></i>
                     </div>
@@ -71,7 +166,7 @@
                     </div>
                 </button>
 
-                <button id="btnChooseShuffle" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition">
+                <button id="btnChooseShuffle" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl btn-modern transition">
                     <div class="bg-emerald-950 text-emerald-400 p-3 rounded-lg mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                         <i class="fa-solid fa-shuffle text-xl"></i>
                     </div>
@@ -106,14 +201,14 @@
         </div>
 
         <div id="screenActiveQuiz" class="hidden space-y-4">
-            <div class="flex justify-between items-center bg-slate-900/60 border border-slate-800 px-4 py-2.5 rounded-xl text-xs">
+            <div class="flex justify-between items-center bg-slate-900/60 border border-slate-800 px-4 py-3 rounded-xl text-xs">
                 <div class="flex items-center gap-3">
                     <span id="quizBatchTitle" class="font-bold text-slate-300">BATCH 1</span>
                     <span id="quizQuestionCounter" class="text-slate-400">Question 1 of 10</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-slate-500">Current Score:</span>
-                    <span id="quizCurrentScore" class="font-bold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-900/40">0</span>
+                    <span id="quizCurrentScore" class="font-bold text-emerald-400 bg-emerald-950/50 px-3 py-1 rounded-lg border border-emerald-900/40">0</span>
                 </div>
             </div>
 
@@ -127,13 +222,13 @@
                     <p id="questionContentText" class="text-base md:text-lg font-medium leading-relaxed text-slate-100">Loading Question Core Context Structure Data...</p>
                 </div>
 
-                <div id="optionsWrapper" class="space-y-2.5">
+                <div id="optionsWrapper" class="space-y-3">
                 </div>
 
                 <div id="feedbackContainer" class="hidden p-4 rounded-xl border transition-all duration-200">
                     <div class="flex items-start gap-3">
-                        <div id="feedbackIconWrapper" class="p-1.5 rounded-lg text-white mt-0.5">
-                            <i id="feedbackIcon" class="fa-solid fa-check"></i>
+                        <div id="feedbackIconWrapper" class="p-2 rounded-lg text-white mt-0.5">
+                            <i id="feedbackIcon" class="fa-solid fa-check text-lg"></i>
                         </div>
                         <div class="space-y-1">
                             <h4 id="feedbackStatusHeadline" class="text-sm font-bold">Correct Answer</h4>
@@ -142,19 +237,19 @@
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                    <button onclick="terminateActiveQuizSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg border border-slate-700 transition">
+                <div class="flex justify-between items-center pt-4 border-t border-slate-800">
+                    <button onclick="terminateActiveQuizSession()" class="btn-modern text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-2.5 border border-slate-700">
                         <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Exit Quiz
                     </button>
-                    <button id="nextQuestionActionButton" disabled class="text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg transition">
-                        <span>Next Question</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <button id="nextQuestionActionButton" disabled class="btn-modern text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-6 py-2.5 border border-indigo-500">
+                        <span>Next Question</span> <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
                     </button>
                 </div>
             </div>
         </div>
 
         <div id="screenBatchResult" class="hidden max-w-md mx-auto text-center bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
-            <div id="resultIconBox" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl shadow-xl">
+            <div id="resultIconBox" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-xl">
                 <i id="resultIcon" class="fa-solid fa-trophy"></i>
             </div>
 
@@ -173,10 +268,10 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-2 pt-2 justify-center">
-                <button onclick="routerToShowBatchMatrix()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2.5 rounded-lg border border-slate-700 transition">
+                <button onclick="routerToShowBatchMatrix()" class="btn-modern text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-5 py-2.5 border border-slate-700">
                     <i class="fa-solid fa-table-cells mr-1"></i> Batches Dashboard
                 </button>
-                <button id="resultActionPrimaryBtn" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md transition">
+                <button id="resultActionPrimaryBtn" class="btn-modern text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-2.5 border border-indigo-500">
                     Advance to Next Block
                 </button>
             </div>
@@ -200,7 +295,8 @@
             currentQuestionIndex: 0,
             batchScore: 0,
             userAnswers: {},
-            unlockedBatches: [0]
+            unlockedBatches: [0],
+            answerLocked: false
         };
 
         // Full Questions database (150 questions)
@@ -212,19 +308,19 @@
             {q:"Complementary pairs of nucleotides of double-stranded DNA form .............bonds.",o:["covalent","phosphodiester","peptide","disulfide","hydrogen"],a:4},
             {q:"Nucleotides in polynucleotide strand of DNA are connected by .......bonds.",o:["phosphodiester","hydrogen","peptide","disulfide","there is no right answer"],a:0},
             {q:"Which base pairs form triple hydrogen bonds:",o:["A-T","A-G","C-T","U-T","G-C"],a:4},
-            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","none of the above"],a:1},
+            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","cannot be determined"],a:1},
             {q:"In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",o:["5'-GCA-3'","5'-ACG-3'","5'-CGU-3'","5'-UGC-3'","5'-CGT-3'"],a:2},
             {q:"Okazaki fragments are formed during the synthesis of:",o:["single-stranded DNA","mRNA","tRNA","polypeptide","double-stranded DNA"],a:4},
             {q:"What type of inheritance is characteristic for mitochondrial DNA?",o:["horizontal","vertical","paternal","maternal","no right answer"],a:3},
-            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in human males","occurs randomly"],a:2},
+            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in humans","all of the above"],a:2},
             {q:"What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",o:["chromatin fiber","nucleosome","solenoid","chromatid","chromosome"],a:1},
             {q:"Chromosome with the same length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:0},
             {q:"Chromosome with slightly different length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:2},
             {q:"Y-chromosome is:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:1},
-            {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:3},
-            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction","the location of the nucleolus","none of the above"],a:1},
+            {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:0},
+            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction","the ratio of the length of any arm to the whole chromosome","none of the above"],a:1},
             {q:"DNA synthesis occurs during ........ period of the mitotic cycle.",o:["presynthetic","premitotic","synthetic","postsynthetic","mitotic division"],a:2},
-            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not replicated?",o:["G1 phase","G2 phase","M phase","S phase","All phases"],a:0}
+            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not replicated?",o:["G0 phase","G1 phase","S phase","G2 phase","M phase"],a:1}
         ];
 
         // Pad with more questions to reach 150
@@ -289,7 +385,7 @@
             for (let i = 0; i < appState.totalBatches; i++) {
                 const batchBtn = document.createElement('button');
                 const isUnlocked = appState.unlockedBatches.includes(i);
-                batchBtn.className = `py-4 px-2 rounded-lg border font-semibold text-sm transition ${
+                batchBtn.className = `py-4 px-2 rounded-lg btn-modern border font-semibold text-sm transition ${
                     isUnlocked 
                         ? 'bg-indigo-950 border-indigo-700 text-indigo-300 hover:bg-indigo-900 cursor-pointer' 
                         : 'bg-slate-950 border-slate-700 text-slate-500 cursor-not-allowed opacity-50'
@@ -314,6 +410,7 @@
             appState.currentBatch = batchIndex;
             appState.currentQuestionIndex = 0;
             appState.batchScore = 0;
+            appState.answerLocked = false;
             
             document.getElementById('screenModeSelection').classList.add('hidden');
             document.getElementById('screenBatchSelection').classList.add('hidden');
@@ -336,6 +433,7 @@
             }
             
             appState.currentQuestionIndex = index;
+            appState.answerLocked = false;
             const q = appState.batchQuestions[index];
             
             document.getElementById('quizQuestionCounter').textContent = `Question ${index + 1} of ${appState.batchQuestions.length}`;
@@ -347,28 +445,79 @@
             
             q.o.forEach((option, optIndex) => {
                 const optBtn = document.createElement('button');
-                optBtn.className = 'w-full text-left p-3 bg-slate-950 border border-slate-700 rounded-lg hover:border-indigo-500 hover:bg-slate-900 transition text-slate-200';
-                optBtn.textContent = option;
-                optBtn.onclick = () => selectAnswer(optIndex, q.a);
+                optBtn.className = 'option-btn w-full text-left p-4 bg-slate-950 border border-slate-700 text-slate-200 transition duration-200';
+                optBtn.innerHTML = `<span class="option-icon">•</span>${option}`;
+                optBtn.onclick = () => selectAnswer(optBtn, optIndex, q.a);
                 wrapper.appendChild(optBtn);
             });
             
             const progressPercent = (index / appState.batchQuestions.length) * 100;
             document.getElementById('progressBarFill').style.width = progressPercent + '%';
             document.getElementById('nextQuestionActionButton').disabled = true;
+            document.getElementById('feedbackContainer').classList.add('hidden');
             document.getElementById('nextQuestionActionButton').textContent = 'Next Question';
         }
 
-        function selectAnswer(selectedIndex, correctIndex) {
+        function selectAnswer(buttonElement, selectedIndex, correctIndex) {
+            if (appState.answerLocked) return;
+            
+            appState.answerLocked = true;
             const isCorrect = selectedIndex === correctIndex;
+            
+            // Get all option buttons
+            const allButtons = document.querySelectorAll('.option-btn');
+            
             if (isCorrect) {
+                // Correct answer
                 appState.batchScore++;
+                buttonElement.classList.add('correct');
+                document.getElementById('quizCurrentScore').textContent = appState.batchScore;
+                
+                // Show feedback
+                showFeedback(true, "Correct!");
+            } else {
+                // Wrong answer
+                buttonElement.classList.add('incorrect');
+                
+                // Show correct answer
+                allButtons[correctIndex].classList.add('correct');
+                
+                // Show feedback
+                showFeedback(false, "Incorrect");
             }
-            document.getElementById('quizCurrentScore').textContent = appState.batchScore;
+            
+            // Disable all buttons
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            // Enable next button
             document.getElementById('nextQuestionActionButton').disabled = false;
             document.getElementById('nextQuestionActionButton').onclick = () => {
                 displayQuestion(appState.currentQuestionIndex + 1);
             };
+        }
+
+        function showFeedback(isCorrect, title) {
+            const feedbackContainer = document.getElementById('feedbackContainer');
+            const feedbackIcon = document.getElementById('feedbackIcon');
+            const feedbackStatusHeadline = document.getElementById('feedbackStatusHeadline');
+            const feedbackIconWrapper = document.getElementById('feedbackIconWrapper');
+            const feedbackRationaleExplanation = document.getElementById('feedbackRationaleExplanation');
+            
+            if (isCorrect) {
+                feedbackIcon.className = 'fa-solid fa-check text-lg';
+                feedbackStatusHeadline.textContent = title;
+                feedbackIconWrapper.className = 'p-2 rounded-lg text-white bg-emerald-500/30 mt-0.5';
+                feedbackContainer.className = 'p-4 rounded-xl border border-emerald-500/40 bg-emerald-500/10';
+                feedbackRationaleExplanation.textContent = 'Great! Your answer is correct. Well done!';
+            } else {
+                feedbackIcon.className = 'fa-solid fa-times text-lg';
+                feedbackStatusHeadline.textContent = title;
+                feedbackIconWrapper.className = 'p-2 rounded-lg text-white bg-red-500/30 mt-0.5';
+                feedbackContainer.className = 'p-4 rounded-xl border border-red-500/40 bg-red-500/10';
+                feedbackRationaleExplanation.textContent = 'The correct answer is highlighted in green. Review the material and try again!';
+            }
+            
+            feedbackContainer.classList.remove('hidden');
         }
 
         function terminateActiveQuizSession() {
@@ -437,7 +586,8 @@
                     currentQuestionIndex: 0,
                     batchScore: 0,
                     userAnswers: {},
-                    unlockedBatches: [0]
+                    unlockedBatches: [0],
+                    answerLocked: false
                 };
                 document.getElementById('modeBadge').textContent = 'Select Mode';
                 document.getElementById('modeBadge').classList.remove('bg-indigo-900', 'bg-emerald-900', 'text-indigo-300', 'text-emerald-300');
