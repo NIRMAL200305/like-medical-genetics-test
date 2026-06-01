@@ -3,38 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Genetics & Cell Biology Simulator</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Medical Genetics Exam Simulator</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        /* Pitch Black Minimalist UI */
+        :root {
+            --bg-base: #000000;
+            --bg-panel: #0a0a0a;
+            --border-subtle: #222222;
+            --border-focus: #555555;
+            --text-main: #ffffff;
+            --text-muted: #666666;
+            
+            --correct-bg: rgba(46, 204, 113, 0.08);
+            --correct-border: #2ecc71;
+            --wrong-bg: rgba(231, 76, 60, 0.08);
+            --wrong-border: #e74c3c;
+            --selected-bg: rgba(255, 255, 255, 0.08);
+            --selected-border: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .test-container {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 760px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            background-color: var(--border-subtle);
+            border-radius: 4px;
+            height: 4px;
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .bar-fill {
+            background-color: var(--text-main);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-card {
+            margin-bottom: 32px;
+        }
+
+        .item-tag {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 400;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            letter-spacing: -0.2px;
+        }
+
+        /* Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-item {
+            background-color: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            border-color: var(--border-focus);
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        .option-item.selected {
+            background-color: var(--selected-bg);
+            border-color: var(--selected-border);
+        }
+
+        .option-item.correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            cursor: default;
+        }
+
+        .option-item.wrong {
+            background-color: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            cursor: default;
+        }
+
+        .option-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            margin-right: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            background-color: transparent;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-item.selected .option-indicator {
+            border-color: var(--selected-border);
+            background-color: var(--text-main);
+            color: #000;
+        }
+
+        .option-item.correct .option-indicator {
+            border-color: var(--correct-border);
+            background-color: var(--correct-border);
+            color: #000;
+        }
+
+        .option-item.wrong .option-indicator {
+            border-color: var(--wrong-border);
+            background-color: var(--wrong-border);
+            color: #fff;
+        }
+
+        .option-text {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+
+        /* Controls */
+        .navigation-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .nav-btn {
+            background-color: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            border-color: var(--text-main);
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            border-color: var(--border-subtle);
+        }
+
+        #next-item-button {
+            background-color: var(--text-main);
+            color: #000000;
+            border-color: var(--text-main);
+            font-weight: 600;
+        }
+
+        #next-item-button:hover:not(:disabled) {
+            background-color: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+        /* Outcome Panel */
+        .outcome-panel {
+            display: none;
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .outcome-panel h2 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .outcome-panel p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .score-callout {
+            font-size: 56px;
+            font-weight: 300;
+            color: var(--text-main);
+            margin-bottom: 48px;
+            letter-spacing: -2px;
+        }
+
+        .restart-btn {
+            background-color: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            padding: 14px 32px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            background-color: var(--text-main);
+            color: #000;
+        }
+
+        #error-diagnostic-panel {
+            display: none;
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid #e74c3c;
+            color: #ff6b6b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-family: monospace;
+            font-size: 13px;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-slate-900">
+<body>
 
-    <!-- Header Navigation -->
-    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-teal-500 text-slate-950 p-2 rounded-xl font-bold text-xs tracking-wider">MG-01</div>
-                <div>
-                    <h1 class="text-sm font-bold tracking-tight text-slate-200">Cell Biology & Genetics</h1>
-                    <p class="text-[11px] text-slate-400 font-medium">Sequential Exam Simulator</p>
+    <div class="test-container">
+        <div id="error-diagnostic-panel"></div>
+
+        <div class="progress-bar-container" id="bar-container-frame">
+            <div class="bar-fill" id="progress-bar-fill-element"></div>
+        </div>
+        <div class="progress-text" id="progress-text-display">PROGRESS: 0 / 0</div>
+
+        <div id="quiz-interaction-block">
+            <div class="question-card">
+                <div class="item-tag" id="item-tag-display">ITEM 0</div>
+                <div class="question-text" id="question-payload-display">Loading question data...</div>
+                <div class="options-container" id="options-box-container">
                 </div>
             </div>
-            <button id="reset-btn" onclick="location.reload()" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 transition px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 cursor-pointer">
-                Restart
-            </button>
+
+            <div class="navigation-controls">
+                <button class="nav-btn" id="prev-item-button" onclick="changeQuestion(-1)">Previous</button>
+                <button class="nav-btn" id="next-item-button" onclick="changeQuestion(1)">Next Item</button>
+            </div>
         </div>
-    </header>
 
-    <!-- Main Simulator Area -->
-    <main class="max-w-3xl w-full mx-auto px-4 py-6 flex-grow flex flex-col justify-center">
+        <div class="outcome-panel" id="outcome-block-panel">
+            <h2>Examination Completed</h2>
+            <p>Your performance summary has been calculated</p>
+            <div class="score-callout" id="final-score-metric">0 / 0 (0%)</div>
+            <button class="restart-btn" onclick="reloadAssessmentCycle()">Restart Exam</button>
+        </div>
+    </div>
 
-        <!-- Quiz Interface Container -->
-        <div id="quiz-view" class="space-y-4">
-            <!-- Progress Info Bar -->
-            <div class="flex justify-between items-center text-xs text-slate-400 font-semibold px-1">
+    <script>
+        // Database scrubbed of all Cyrillic homoglyphs and special characters to prevent encoding crashes
+        const questionsDatabase = [
+            {q:"Major component of DNA is:",o:["histones","deoxyribonucleotides","proteins","amino acids","ribonucleotides"],a:1},
+            {q:"Purine nitrogenous bases are:",o:["A + T","C + T","A + G","G + T","G + C"],a:2},
+            {q:"Pyrimidine nitrogenous bases are:",o:["A + T","G + T","G + C","C + T","A + G"],a:3},
+            {q:"The total amount of A + G of double-stranded DNA is equal to the total amount of:",o:["C + T","A + T","G + T","G + C","A + C"],a:0},
+            {q:"Complementary pairs of nucleotides of double-stranded DNA form .............bonds.",o:["covalent","phosphodiester","peptide","disulfide","hydrogen"],a:4},
+            {q:"Nucleotides in polynucleotide strand of DNA are connected by .......bonds.",o:["phosphodiester","hydrogen","peptide","disulfide","there is no right answer"],a:0},
+            {q:"Which base pairs form triple hydrogen bonds:",o:["A-T","A-G","C-T","U-T","G-C"],a:4},
+            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","none of the above"],a:1},
+            {q:"In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",o:["5'-GCA-3'","5'-ACG-3'","5'-CGU-3'","5'-UGC-3'","5'-CGT-3'"],a:2},
+            {q:"Okazaki fragments are formed during the synthesis of:",o:["single-stranded DNA","mRNA","tRNA","polypeptide","double-stranded DNA"],a:4},
+            {q:"What type of inheritance is characteristic for mitochondrial DNA?",o:["horizontal","vertical","paternal","maternal","no right answer"],a:3},
+            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in human males","occurs only during mitosis"],a:2},
+            {q:"What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",o:["chromatin fiber","nucleosome","solenoid","chromatid","chromosome"],a:1},
+            {q:"Chromosome with the same length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:0},
+            {q:"Chromosome with slightly different length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:2},
+            {q:"Y-chromosome is:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:1},
+            {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:3},
+            {q:"The centmere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction on the chromosome","the ratio of the centmere size to the length of the chromosome","the ratio of the length of the short arm to the length of the chromosome"],a:4},
+            {q:"DNA synthesis occurs during ........ period of the mitotic cycle.",o:["presynthetic","premitotic","synthetic","postsynthetic","mitotic division"],a:2},
+            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not synthesized?",o:["synthetic","premitotic","telophase","presynthetic","anaphase"],a:3},
+            {q:"How many chromosomes does a human somatic cell have in the presynthetic period of the mitotic cycle?",o:["46","92","47","45","23"],a:0},
+            {q:"How many DNA molecules does a human somatic cell have in the presynthetic period of the mitotic cycle?",o:["92","47","45","46","23"],a:3},
+            {q:"How many DNA molecules does a human somatic cell have in the postsynthetic period of the mitotic cycle?",o:["46","92","47","45","23"],a:1},
+            {q:"How many chromosomes does a human somatic cell have in the postsynthetic period of the mitotic cycle?",o:["92","47","45","23","46"],a:4},
+            {q:"What are the consequences of the DNA polymerase damage during the mitotic cycle?",o:["damage of the formation of the spindle division","damage of the cytokinesis","damage of the DNA replication","decrease in the duration of mitosis","increase in the duration of mitosis"],a:2},
+            {q:"What are the consequences of the helicase enzyme damage during the mitotic cycle?",o:["damage of the formation of the spindle division","damage of the cytokinesis","decrease in the duration of mitosis","increase in the duration of mitosis","damage of the DNA replication"],a:4},
+            {q:"If a lymphocyte is damaged by an RNA-containing virus, the direction of the information flow in the cell will be:",o:["RNA -> DNA -> mRNA -> polypeptide","DNA -> mRNA -> polypeptide -> DNA","DNA -> polypeptide -> mRNA","mRNA -> polypeptide -> DNA","polypeptide -> RNA -> DNA -> mRNA"],a:0},
+            {q:"The genetic material in eukaryotic cells is:",o:["nucleic acid","chromatin","polypeptide","circular DNA molecule","nucleoid"],a:1},
+            {q:"What is the name of a molecule in the cell nucleus, capable to self-reproduction and storage of genetic information?",o:["rRNA","mRNA","histon","DNA","hemoglobin"],a:3},
+            {q:"DNA polymerase have:",o:["5'-3' polymerase activity","3' polymerase activity","3'-5' exonuclease activity","5'-3' exonuclease activity","enduclease activity"],a:0},
+            {q:"Under what type of DNA replication each of its strands becomes a template for the synthesis of a new strand.",o:["analogical","semi-conservative","identical","dispersed","conservative"],a:1},
+            {q:"In case of a semi-conservative mechanism of DNA replication, the nucleotides of the synthesized DNA strand are complementary to the nucleotides of:",o:["RNA polymerase enzyme","DNA polymerase enzyme","sence codons","introns of a gene","maternal DNA strand"],a:4},
+            {q:"What enzyme breaks down the hydrogen bonds and unwinds the DNA helix during replication?",o:["RNA-polymerase","helicase","ligase","restrictase","DNA-polymerase"],a:1},
+            {q:"Maximum damage to DNA is caused by:",o:["UV-rays","increased on 10 degrees temperature","X-rays","sulfanilamides","formaldehyde"],a:2},
+            {q:"Codon consists of:",o:["2 base pairs","3 base pairs","4 base pairs","5 base pairs","two nucleotides"],a:1},
+            {q:"What is the phenomenon of recovery a damaged part of the DNA molecule using specific enzymes?",o:["replication","initiation","termination","duplication","repair"],a:4},
+            {q:"Ultraviolet rays cause the formation of pyrimidine dimers in the DNA molecule. Specify them:",o:["adenine and thymine","guanine and thymine","thymine and cytosine","guanine and cytosine","adenine and guanine"],a:2},
+            {q:"Transcription is:",o:["one of the forms of exchange of genetic information","the process of reading genetic information from DNA to mRNA","the process of protein synthesis from the mRNA template","a substitution of purine bases in the DNA molecule","the amino acid transport by tRNA"],a:1},
+            {q:"Translation is:",o:["the process of protein synthesis from the mRNA template","one of the forms of exchange of genetic information","the process of reading genetic information from DNA to mRNA","a substitution of purine bases in the DNA molecule","the amino acid transport by tRNA"],a:0},
+            {q:"Xeroderma pigmentosum is a rare autosomal recessive condition that includes abnormal skin pigmentation and acute sensitivity to sunlight. What process is disrupted as a result of this defect:",o:["DNA replication","DNA repair","translation","transcription","initiation"],a:1},
+            {q:"A segment of a eukaryotic gene that is not represented in the mature messenger RNA is known as:",o:["poly(A) tail","TATA box","intron","exon","plasmid"],a:2},
+            {q:"Which of the following is not a post transcriptional modification of mRNA?",o:["splicing","5' capping","3' polyadenylation","processing","glycolysation"],a:4},
+            {q:"The template for the synthesis of mRNA molecule in bacteria is:",o:["a part of one of the DNA strands","the DNA molecule","one of the strands of the DNA molecule","a strand of DNA molecules without introns","a strand of DNA molecules without exons"],a:0},
+            {q:"What is the structure of pro-mRNA molecule in eukaryotes?",o:["intron-intron-exon","exon-intron-exon","exon-exon-intron","intron-intron","exon-exon"],a:1},
+            {q:"The sequence of amino acids in the molecule of human insulin is encoded by:",o:["the sequence of structural genes","the sequence of nucleotides of the DNA molecule","the sequence of nucleotides in the exon regions of the gene","a certain alternation of exons and introns","the sequence of nucleotides in the introns of the gene"],a:2},
+            {q:"What is the process of mRNA synthesis on the DNA template?",o:["replication","elongation","translation","transcription","termination"],a:3},
+            {q:"What process is disturbed in case of inhibition of RNA polymerase by toxins:",o:["transcription","replication","repair","translation","processing"],a:0},
+            {q:"What mRNA codons will be complementary to triplets ATG-CGT of DNA molecule?",o:["AUG-CGU","UAC-GCA","ATG-CGT","UAG-CGU","TAC-GCA"],a:1},
+            {q:"Transcription stops after RNA polymerase reaches a nucleotides sequence of DNA called:",o:["operator","repressor","regulator","terminator","stop codon"],a:3},
+            {q:"An mRNA molecule contains both exons and introns due to the absence of:",o:["splicing","replication","transcription","translation","recombination"],a:0},
+            {q:"The set of stages of the mRNA maturation is called:",o:["replication and recombination","transcription and recombination","translation","termination","processing and splicing"],a:4},
+            {q:"What process precedes the translation in eukaryotes, leading to a decrease in the number of nucleotides in the mRNA molecule:",o:["initiation","splicing","repair","mutation","replication"],a:1},
+            {q:"The removal of introns and joining of exons of mRNA in eukaryotes is called:",o:["transcription","repair","splicing","replication","reverse transcription"],a:2},
+            {q:"Splicing enzymes are not synthesized in the cell. What is the reason for the termination of protein biosynthesis in this case?",o:["ATP is not synthesized","rRNA is not formed","amino acids are no            <div class="flex justify-between items-center text-xs text-slate-400 font-semibold px-1">
                 <span id="progress-text">Loading Progress...</span>
                 <span id="score-counter" class="text-teal-400">Score: 0/0</span>
             </div>
