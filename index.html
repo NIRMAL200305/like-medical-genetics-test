@@ -1,40 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Genetics Exam Simulator</title>
+    <title>Molecular Biology & Cell Biology Practice Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Pitch Black Minimalist UI */
-        :root {
-            --bg-base: #000000;
-            --bg-panel: #0a0a0a;
-            --border-subtle: #222222;
-            --border-focus: #555555;
-            --text-main: #ffffff;
-            --text-muted: #666666;
-            
-            --correct-bg: rgba(46, 204, 113, 0.08);
-            --correct-border: #2ecc71;
-            --wrong-bg: rgba(231, 76, 60, 0.08);
-            --wrong-border: #e74c3c;
-            --selected-bg: rgba(255, 255, 255, 0.08);
-            --selected-border: #ffffff;
+        @layer base {
+            body {
+                background-color: #0f172a;
+                color: #f8fafc;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
         }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased transition-colors duration-300">
 
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid :fa-dna text-xl animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white">Molecular-Genetic & Cell Biology</h1>
+                    <p class="text-xs text-slate-400">Section 1 Comprehensive Question Bank</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="modeBadge" class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    Select Mode
+                </span>
+                <button id="resetAppBtn" class="text-xs bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 px-3 py-1.5 rounded-md border border-slate-700 transition" title="Reset all progress data">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset Progress
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-6 max-w-4xl w-full mx-auto flex flex-col justify-center">
+        
+        <div id="screenModeSelection" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-extrabold text-white sm:text-3xl">Choose Your Practice Layout</h2>
+                <p class="text-slate-400 max-w-lg mx-auto text-sm">Test your competency on 150 high-yield questions. Unlock sequential batches or attempt completely randomized configurations.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <button id="btnChooseSequential" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 rounded-xl transition-all duration-300 shadow-md">
+                    <div class="bg-indigo-950 text-indigo-400 p-3 rounded-lg mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-list-ol text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Standard Sequential Order</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Answers exactly matches the layout parameters defined by the standard syllabus document order (Questions 1 to 150 grouped in batches of 10).</p>
+                    <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-indigo-400">
+                        <span>Progressive Tracking</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
+                <button id="btnChooseShuffle" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-xl transition-all duration-300 shadow-md">
+                    <div class="bg-emerald-950 text-emerald-400 p-3 rounded-lg mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-shuffle text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Randomized Shuffle Mode</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Shuffles all 150 questions cleanly without overlapping items inside dynamic blocks of 10 questions to test real baseline retention metrics.</p>
+                    <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-emerald-400">
+                        <span>Unpredictable Evaluation</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div id="screenBatchSelection" class="hidden space-y-6">
+            <div class="flex items-center gap-2 text-slate-400 text-sm">
+                <button onclick="routerToShowSelection()" class="hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Change Mode</button>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Select a Question Batch</h2>
+                        <p class="text-xs text-slate-400">Score &gt; 5 out of 10 to clear a block and unlock subsequent sections.</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="overallProgressText" class="text-xs font-semibold text-indigo-400 bg-indigo-950 px-2.5 py-1 rounded-md border border-indigo-900">0/15 Completed</span>
+                    </div>
+                </div>
+
+                <div id="batchGridContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    </div>
+            </div>
+        </div>
+
+        <div id="screenActiveQuiz" class="hidden space-y-4">
+            <div class="flex justify-between items-center bg-slate-900/60 border border-slate-800 px-4 py-2.5 rounded-xl text-xs">
+                <div class="flex items-center gap-3">
+                    <span id="quizBatchTitle" class="font-bold text-slate-300">BATCH 1</span>
+                    <span id="quizQuestionCounter" class="text-slate-400">Question 1 of 10</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-500">Current Score:</span>
+                    <span id="quizCurrentScore" class="font-bold text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-900/40">0</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-7 shadow-2xl space-y-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-slate-800">
+                    <div id="progressBarFill" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style="width: 10%;"></div>
+                </div>
+
+                <div class="space-y-2">
+                    <span id="originalPdfIndex" class="inline-block px-2 py-0.5 text-[10px] font-mono tracking-wide text-indigo-300 bg-indigo-950 border border-indigo-900 rounded">PDF Q#1</span>
+                    <p id="questionContentText" class="text-base md:text-lg font-medium leading-relaxed text-slate-100">Loading Question Core Context Structure Data...</p>
+                </div>
+
+                <div id="optionsWrapper" class="space-y-2.5">
+                    </div>
+
+                <div id="feedbackContainer" class="hidden p-4 rounded-xl border transition-all duration-200">
+                    <div class="flex items-start gap-3">
+                        <div id="feedbackIconWrapper" class="p-1.5 rounded-lg text-white mt-0.5">
+                            <i id="feedbackIcon" class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 id="feedbackStatusHeadline" class="text-sm font-bold">Correct Answer</h4>
+                            <p id="feedbackRationaleExplanation" class="text-xs leading-relaxed text-slate-300">Explanation details display block placeholder...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                    <button onclick="terminateActiveQuizSession()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg border border-slate-700 transition">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Exit Quiz
+                    </button>
+                    <button id="nextQuestionActionButton" disabled class="text-xs bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-600/10 transition flex items-center gap-1.5">
+                        <span>Next Question</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screenBatchResult" class="hidden max-w-md mx-auto text-center bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div id="resultIconBox" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl shadow-xl">
+                <i id="resultIcon" class="fa-solid fa-trophy"></i>
+            </div>
+
+            <div class="space-y-2">
+                <h2 id="resultTitle" class="text-2xl font-bold text-white">Batch Completed!</h2>
+                <p id="resultSubtitle" class="text-xs text-slate-400">Here is how you performed on this challenge set matrix block.</p>
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 max-w-xs mx-auto">
+                <div class="text-3xl font-extrabold" id="resultScoreMetrics">8 / 10</div>
+                <div class="text-[11px] uppercase tracking-wider text-slate-500 font-bold mt-1" id="resultPercentageText">80% Accuracy Rate</div>
+            </div>
+
+            <p id="resultExplanatorySummary" class="text-xs text-slate-300 px-2 leading-relaxed">
+                Great job! You passed the required proficiency criteria (&gt;50%) and unlocked the next consecutive evaluation batch block layer.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-2 pt-2 justify-center">
+                <button onclick="routerToShowBatchMatrix()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold px-4 py-2.5 rounded-lg border border-slate-700 transition">
+                    <i class="fa-solid fa-table-cells mr-1"></i> Batches Dashboard
+                </button>
+                <button id="resultActionPrimaryBtn" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md transition">
+                    Advance to Next Block
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-slate-800 py-3 text-center text-slate-500 text-[11px]">
+        Molecular-Genetic & Cell Levels of Living Things Organization Hub &bull; 150 Core Practice Questions Matrix Database
+    </footer>
+
+    <script>
+        /*************************************************************
+         * 1. THE 150 COMPREHENSIVE QUESTION DATA OBJECT ARRAY       *
+         *************************************************************/
+        const MasterQuestionDatabase = [
+    {
+        id: 1,
+        text: "Major component of DNA is:",
+        options: ["histones", "deoxyribonucleotides", "proteins", "amino acids", "ribonucleotides"],
+        correct: 1,
+        exp: "Deoxyribonucleic acid (DNA) is composed of individual chemical monomers known as deoxyribonucleotides, each consisting of a deoxyribose sugar, a phosphate group, and a nitrogenous base."
+    },
+    {
+        id: 2,
+        text: "Purine nitrogenous bases are:",
+        options: ["Adenine + Thymine", "Cytosine + Thymine", "Adenine + Guanine", "Guanine + Thymine", "Guanine + Cytosine"],
+        correct: 2,
+        exp: "Purines have a double-ring structure and include Adenine (A) and Guanine (G). Pyrimidines are single-ringed molecules (Cytosine, Thymine, Uracil)."
+    },
+    {
+        id: 3,
+        text: "Pyrimidine nitrogenous bases are:",
+        options: ["Adenine + Thymine", "Guanine + Thymine", "Guanine + Cytosine", "Cytosine + Thymine", "Adenine + Guanine"],
+        correct: 3,
+        exp: "Cytosine (C) and Thymine (T) are pyrimidines, characterized by their single six-membered heterocyclic carbon-nitrogen ring configuration."
+    },
+    {
+        id: 4,
+        text: "The total amount of A+G of double-stranded DNA is equal to the total amount of:",
+        options: ["C+T", "A+T", "G+T", "G+C", "A+C"],
+        correct: 0,
+        exp: "According to Chargaff's rules, in double-stranded DNA, the total number of purines equals total pyrimidines ($A+G = C+T$), because every purine pairs with a specific complementary pyrimidine."
+    },
+    {
+        id: 5,
+        text: "Complementary pairs of nucleotides of double-stranded DNA form .............bonds.",
+        options: ["covalent", "phosphodiester", "peptide", "disulfide", "hydrogen"],
+        correct: 4,
+        exp: "The two opposing strands of double-stranded DNA are bound together non-covalently via weak hydrogen bonds forming between complementary base structures."
+    },
+    {
+        id: 6,
+        text: "Nucleotides in polynucleotide strand of DNA are connected by .......bonds.",
+        options: ["phosphodiester", "hydrogen", "peptide", "disulfide", "there is no right answer"],
+        correct: 0,
+        exp: "Strong covalent phosphodiester bonds connect the 3' carbon of one deoxyribose sugar molecule to the 5' carbon of the adjacent sugar to assemble the stable continuous strand backbone."
+    },
+    {
+        id: 7,
+        text: "Which base pairs form triple hydrogen bonds:",
+        options: ["A-T", "A-G", "C-T", "U-T", "G-C"],
+        correct: 4,
+        exp: "Guanine pairs exclusively with Cytosine via three hydrogen bonds ($G \equiv C$), making GC-rich regions thermodynamically more stable than Adenine-Thymine pairs ($A = T$), which share only two."
+    },
+    {
+        id: 8,
+        text: "A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",
+        options: ["double-stranded DNA", "single-stranded DNA", "double-stranded RNA", "single-stranded RNA", "none of the above"],
+        correct: 1,
+        exp: "The presence of Thymine confirms it is DNA (not RNA). Because the ratio of Adenine (10%) is not equal to Thymine (24%), and Guanine (30%) is not equal to Cytosine (36%), it cannot be double-stranded. It must be single-stranded DNA."
+    },
+    {
+        id: 9,
+        text: "In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",
+        options: ["5'-GCA-3'", "5'-ACG-3'", "5'-CGU-3'", "5'-UGC-3'", "5'-CGT-3'"],
+        correct: 2,
+        exp: "The coding (or sense) strand of DNA matches the transcribed mRNA sequence directly in direction ($5' \rightarrow 3'$), with the sole biochemical exception that Thymine (T) is substituted by Uracil (U)."
+    },
+    {
+        id: 10,
+        text: "Okazaki fragments are formed during the synthesis of:",
+        options: ["single-stranded DNA", "mRNA", "tRNA", "polypeptide", "double-stranded DNA"],
+        correct: 4,
+        exp: "Okazaki fragments are short, newly synthesized DNA fragments formed on the lagging template strand during semi-conservative double-stranded DNA replication."
+    },
+    {
+        id: 11,
+        text: "What type of inheritance is characteristic for mitochondrial DNA?",
+        options: ["horizontal", "vertical", "paternal", "maternal", "no right answer"],
+        correct: 3,
+        exp: "Mitochondria are transmitted exclusively through the cytoplasm of the female oocyte, leading to strict maternal (uniparental) inheritance patterns."
+    },
+    {
+        id: 12,
+        text: "Heterochromatin:",
+        options: ["is responsible for all negative transcriptional control", "contains more DNA than does euchromatin", "is transcriptionally inactive", "clumps the X chromosome in human males", "occurs only during mitosis"],
+        correct: 2,
+        exp: "Heterochromatin refers to tightly packed, condensed states of chromosomal DNA that remain transcriptionally silent or inactive due to inaccessibility to RNA polymerase."
+    },
+    {
+        id: 13,
+        text: "What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",
+        options: ["chromatin fiber", "nucleosome", "solenoid", "chromatid", "chromosome"],
+        correct: 1,
+        exp: "A nucleosome is the fundamental structural repeating subunit of chromatin, comprised of roughly 147 base pairs of DNA coiled around a core octamer complex of core histones."
+    },
+    {
+        id: 14,
+        text: "Chromosome with the same length of the arms is called:",
+        options: ["metacentric", "acrocentric", "submetacentric", "telocentric", "autosome"],
+        correct: 0,
+        exp: "Metacentric chromosomes exhibit centrally positioned centromeres, dividing the body structure into two functional morphologically equivalent long and short arms ($p \approx q$)."
+    },
+    {
+        id: 15,
+        text: "Chromosome with slightly different length of the arms is called:",
+        options: ["metacentric", "acrocentric", "submetacentric", "telocentric", "autosome"],
+        correct: 2,
+        exp: "Submetacentric chromosomes possess a centromere that is visibly displaced from the absolute center, creating a clear discrepancy between short arms ($p$) and long arms ($q$)."
+    },
+    {
+        id: 16,
+        text: "Y-chromosome is:",
+        options: ["metacentric", "acrocentric", "submetacentric", "telocentric", "autosome"],
+        correct: 1,
+        exp: "The human male sex Y-chromosome is morphologically classified as acrocentric; its centromere sits near one terminus, leaving very short, stubby p-arms."
+    },
+    {
+        id: 17,
+        text: "The long and short arms of chromosomes are designated respectively as:",
+        options: ["p and q arms", "b and q arms", "l and s arms", "q and p arms", "b and s arms"],
+        correct: 3,
+        exp: "By standard nomenclature conventions, the longer chromosome arm is explicitly labeled 'q', whereas the shorter arm is labeled 'p' (derived from the French word 'petit')."
+    },
+    {
+        id: 18,
+        text: "The centromere index is:",
+        options: ["the ratio of the length of chromosome arms", "the ratio of the length of any arm to the length of the chromosome", "the location of the secondary constriction on the chromosome", "the ratio of the centromere size to the length of the chromosome", "the ratio of the length of the short arm to the length of the chromosome"],
+        correct: 4,
+        exp: "The centromeric index expresses the precise biological structural r
         .test-container {
             background-color: var(--bg-panel);
             border: 1px solid var(--border-subtle);
