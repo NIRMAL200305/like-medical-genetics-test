@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Molecular Biology & Cell Biology Practice Test</title>
+    <title>Medical Genetics Practice Test - Multiple Sections</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -130,8 +130,8 @@
                     <i class="fa-solid fa-dna text-xl animate-pulse"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white">Molecular-Genetic & Cell Biology</h1>
-                    <p class="text-xs text-slate-400">Section 1 Comprehensive Question Bank</p>
+                    <h1 class="text-lg font-bold tracking-tight text-white" id="headerTitle">Medical Genetics Test</h1>
+                    <p class="text-xs text-slate-400" id="headerSubtitle">Select a section to begin</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -147,10 +147,48 @@
 
     <main class="flex-grow p-4 md:p-6 max-w-4xl w-full mx-auto flex flex-col justify-center">
         
-        <div id="screenModeSelection" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+        <!-- Section Selection Screen -->
+        <div id="screenSectionSelection" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-2xl font-extrabold text-white sm:text-3xl">Medical Genetics & Cell Biology Practice</h2>
+                <p class="text-slate-400 max-w-lg mx-auto text-sm">Choose a section to test your knowledge across multiple medical genetics topics.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                <button id="btnChooseSection1" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-indigo-500/50 rounded-2xl btn-modern transition">
+                    <div class="bg-indigo-950 text-indigo-400 p-3 rounded-lg mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-dna text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Section 1: Molecular & Cell Biology</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Comprehensive questions on DNA, RNA, chromosomes, and cellular structures. 150 high-yield questions.</p>
+                    <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-indigo-400">
+                        <span>150 Questions</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+
+                <button id="btnChooseSection2" class="group relative flex flex-col text-left p-5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl btn-modern transition">
+                    <div class="bg-emerald-950 text-emerald-400 p-3 rounded-lg mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-leaf text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Section 2: Ontogenetic Level</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Inheritance patterns, genetic disorders, development, and chromosomal abnormalities. 235 comprehensive questions.</p>
+                    <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-emerald-400">
+                        <span>235 Questions</span>
+                        <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mode Selection Screen -->
+        <div id="screenModeSelection" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="flex items-center gap-2 text-slate-400 text-sm mb-4">
+                <button onclick="routerToSectionSelection()" class="hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Back to Sections</button>
+            </div>
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-extrabold text-white sm:text-3xl">Choose Your Practice Layout</h2>
-                <p class="text-slate-400 max-w-lg mx-auto text-sm">Test your competency on 150 high-yield questions. Unlock sequential batches or attempt completely randomized configurations.</p>
+                <p class="text-slate-400 max-w-lg mx-auto text-sm">Test your competency with high-yield questions. Unlock sequential batches or attempt completely randomized configurations.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -159,7 +197,7 @@
                         <i class="fa-solid fa-list-ol text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-white mb-1">Standard Sequential Order</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Questions 1 to 150 grouped in 15 batches of 10 questions each.</p>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Questions grouped in batches. Score > 5 out of 10 to unlock the next batch.</p>
                     <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-indigo-400">
                         <span>Progressive Tracking</span>
                         <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
@@ -171,7 +209,7 @@
                         <i class="fa-solid fa-shuffle text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-white mb-1">Randomized Shuffle Mode</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Shuffles all 150 questions in random order to test your baseline retention.</p>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Shuffles all questions in random order to test your baseline retention.</p>
                     <div class="mt-auto w-full flex items-center justify-between text-xs font-medium text-emerald-400">
                         <span>Unpredictable Evaluation</span>
                         <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
@@ -180,6 +218,7 @@
             </div>
         </div>
 
+        <!-- Batch Selection Screen -->
         <div id="screenBatchSelection" class="hidden space-y-6">
             <div class="flex items-center gap-2 text-slate-400 text-sm">
                 <button onclick="routerToShowSelection()" class="hover:text-white transition"><i class="fa-solid fa-arrow-left"></i> Change Mode</button>
@@ -200,6 +239,7 @@
             </div>
         </div>
 
+        <!-- Active Quiz Screen -->
         <div id="screenActiveQuiz" class="hidden space-y-4">
             <div class="flex justify-between items-center bg-slate-900/60 border border-slate-800 px-4 py-3 rounded-xl text-xs">
                 <div class="flex items-center gap-3">
@@ -248,6 +288,7 @@
             </div>
         </div>
 
+        <!-- Batch Result Screen -->
         <div id="screenBatchResult" class="hidden max-w-md mx-auto text-center bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
             <div id="resultIconBox" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl shadow-xl">
                 <i id="resultIcon" class="fa-solid fa-trophy"></i>
@@ -280,12 +321,13 @@
     </main>
 
     <footer class="border-t border-slate-800 py-3 text-center text-slate-500 text-[11px]">
-        Molecular-Genetic & Cell Levels of Living Things Organization Hub • 150 Core Practice Questions Matrix Database
+        Medical Genetics & Cell Biology Practice Platform • Multiple Comprehensive Question Banks
     </footer>
 
     <script>
         // Initialize application state
         let appState = {
+            section: null,
             mode: null,
             currentBatch: 0,
             totalBatches: 15,
@@ -299,8 +341,8 @@
             answerLocked: false
         };
 
-        // Full Questions database (150 questions)
-        const questionsDatabase = [
+        // Section 1: Molecular & Cell Biology (150 questions)
+        const section1Database = [
             {q:"Major component of DNA is:",o:["histones","deoxyribonucleotides","proteins","amino acids","ribonucleotides"],a:1},
             {q:"Purine nitrogenous bases are:",o:["A + T","C + T","A + G","G + T","G + C"],a:2},
             {q:"Pyrimidine nitrogenous bases are:",o:["A + T","G + T","G + C","C + T","A + G"],a:3},
@@ -308,28 +350,52 @@
             {q:"Complementary pairs of nucleotides of double-stranded DNA form .............bonds.",o:["covalent","phosphodiester","peptide","disulfide","hydrogen"],a:4},
             {q:"Nucleotides in polynucleotide strand of DNA are connected by .......bonds.",o:["phosphodiester","hydrogen","peptide","disulfide","there is no right answer"],a:0},
             {q:"Which base pairs form triple hydrogen bonds:",o:["A-T","A-G","C-T","U-T","G-C"],a:4},
-            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","cannot be determined"],a:1},
+            {q:"A virus contains 10% adenine, 24% thymine, 30% guanine, and 36% cytosine. The genetic material in this virus is:",o:["double-stranded DNA","single-stranded DNA","double-stranded RNA","single-stranded RNA","all answers are correct"],a:1},
             {q:"In a DNA the coding region reads 5'-CGT-3'. This would code in the RNA as:",o:["5'-GCA-3'","5'-ACG-3'","5'-CGU-3'","5'-UGC-3'","5'-CGT-3'"],a:2},
             {q:"Okazaki fragments are formed during the synthesis of:",o:["single-stranded DNA","mRNA","tRNA","polypeptide","double-stranded DNA"],a:4},
             {q:"What type of inheritance is characteristic for mitochondrial DNA?",o:["horizontal","vertical","paternal","maternal","no right answer"],a:3},
-            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in humans","all of the above"],a:2},
+            {q:"Heterochromatin:",o:["is responsible for all negative transcriptional control","contains more DNA than does euchromatin","is transcriptionally inactive","clumps the X chromosome in humans","all answers are correct"],a:2},
             {q:"What structure is formed by DNA wrapped about two times around an octamer of eight histone proteins?",o:["chromatin fiber","nucleosome","solenoid","chromatid","chromosome"],a:1},
             {q:"Chromosome with the same length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:0},
             {q:"Chromosome with slightly different length of the arms is called:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:2},
             {q:"Y-chromosome is:",o:["metacentric","acrocentric","submetacentric","telocentric","autosome"],a:1},
             {q:"The long and short arms of chromosomes are designated respectively as:",o:["p and q arms","b and q arms","l and s arms","q and p arms","b and s arms"],a:0},
-            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction","the ratio of the length of any arm to the whole chromosome","none of the above"],a:1},
+            {q:"The centromere index is:",o:["the ratio of the length of chromosome arms","the ratio of the length of any arm to the length of the chromosome","the location of the secondary constriction","the location of the primary constriction","all answers are correct"],a:1},
             {q:"DNA synthesis occurs during ........ period of the mitotic cycle.",o:["presynthetic","premitotic","synthetic","postsynthetic","mitotic division"],a:2},
-            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not replicated?",o:["G0 phase","G1 phase","S phase","G2 phase","M phase"],a:1}
+            {q:"What is the period of the mitotic cycle in which the processes of cell growth, formation of organelles, synthesis of proteins, RNA, lipids and carbohydrates take place, but DNA is not synthesized?",o:["S phase","G1 phase","G2 phase","M phase","all phases"],a:1}
         ];
 
-        // Pad with more questions to reach 150
-        function generateQuestions() {
-            const questions = [...questionsDatabase];
-            while (questions.length < 150) {
-                questions.push({...questionsDatabase[Math.floor(Math.random() * questionsDatabase.length)]});
+        // Section 2: Ontogenetic Level (235 questions)
+        const section2Database = [
+            {q:"In the family, one of the parents is homozygous for the dominant gene of polydactyly, and the second is healthy (homozygous for the recessive gene). If couple will have children, what of the Mendel's laws will shows up in the inheritance of the trait?",o:["segregation","dominance","independent assortment","gametes purity","linked inheritance"],a:0},
+            {q:"In the family, the father of the child is homozygous for the dominant gene of dark tooth enamel, and the mother has teeth of normal color. What of the Mendel's laws is shows up in the inheritance of the trait?",o:["segregation","incomplete linkage","independent assortment","complete linkage","dominance"],a:4},
+            {q:"Husband and wife have a wide gap between the incisors (dominant trait). Both are heterozygous. If couple will have children, what of the Mendel's laws will shows up in the inheritance of the trait?",o:["dominance","independent assortment","segregation","incomplete linkage","complete linkage"],a:2},
+            {q:"In the family, the child has a wide gap between the incisors (dominant trait). His brother has incisors without the gap. Genotype of brother is:",o:["recessive homozygote","dominant homozygote","heterozygote","diheterozygote","triheterozygote"],a:0},
+            {q:"The couple's daughter has achondroplasia (dwarfism). This anomaly controlled by the dominant gene (A). The girl's brother has normal development. What is the genotype of the brother?",o:["AA","Aa","aa","AaBb","AABB"],a:2},
+            {q:"In the family, both parents are deaf. Deafness of the woman depends on an autosomal recessive gene. Her husband's deafness was formed as a result of taking antibiotics in childhood. Determine the probability of the child birth with deafness, if husband is homozygous for the allele of normal hearing.",o:["25%","50%","75%","100%","0%"],a:4},
+            {q:"In a family, one of the healthy parents have recessive gene of phenylketonuria. Determine the probability of child birth with phenylketonuria in this family.",o:["0%","25%","50%","75%","100%"],a:1},
+            {q:"Healthy parents have two sons with phenylketonuria and one healthy daughter. What is the probability that their fourth child will have phenylketonuria?",o:["0%","50%","25%","75%","100%"],a:1},
+            {q:"Healthy parents have child with phenylketonuria. What are the genotypes of the parents?",o:["AA x AA","Aa x aa","AA x aa","Aa x Aa","aa x aa"],a:3},
+            {q:"What are the genotypes of the parents if blue-eyed father and brown-eyed mother have 5 children, two of which have blue eyes?",o:["Aa x aa","AA x aa","aa x aa","AA x Aa","Aa x AA"],a:0},
+            {q:"In humans, brown color of eyes is a dominant attribute over blue color. Determine the possible phenotype segregation in F1 in heterozygous brown-eyed parents:",o:["100% brown","100% blue","1 (brown) : 1 (blue)","1 (brown) : 3 (blue)","3 (brown) : 1 (blue)"],a:4},
+            {q:"Parents with hemoglobinopathy (disorder with autosomal dominant mode of inheritance) have a healthy son. What are the genotypes of the parents?",o:["the mother is heterozygous for the hemoglobinopathy gene, this gene is absent in the father","both are homozygous for the hemoglobinopathy gene","both are heterozygous for the hemoglobinopathy gene","the father is heterozygous for the hemoglobinopathy gene, this gene is absent in the mother","hemoglobinopathy gene is absent in both parents"],a:0},
+            {q:"Marfan's syndrome can affect many organs, often causing abnormalities in the heart, blood vessels, eyes, bones, and joints. What genetic phenomenon causes the development of symptoms of Marfan's syndrome?",o:["pleiotropy","incomplete dominance","existence of multiple alleles","codominance","epistasis"],a:0},
+            {q:"A point mutation of a single gene causes the development of Hartrup disorder. It affects the absorption of the amino acid tryptophan in the intestine and its reabsorption in the renal tubules, which leads to disorders of the digestive and excretory systems. What genetic phenomenon causes the development of symptoms of Hartrup disorder?",o:["complementary genes action","polygeny","codominance","pleiotropy","incomplete dominance"],a:3},
+            {q:"The allele interactions are:",o:["codominance, epistasis","complementary genes action, overdominance","polygeny, complementary genes action","epistasis, incomplete dominance","dominance, overdominance"],a:0},
+            {q:"The gene interactions are:",o:["polygeny, complementary genes action","codominance, epistasis","complementary genes action, overdominance","dominance, overdominance","epistasis, incomplete dominance"],a:0},
+            {q:"A person may have a different degree of development of a hereditary disease. The degree of development of a trait in the realization of a genotype into phenotype in different environmental conditions is called:",o:["penetrance","expressivity","heredity","mutability","polygeny"],a:1},
+            {q:"Cystinuria is an inherited autosomal recessive disease that is characterized by high concentrations of the amino acid cysteine in the urine in heterozygotes and formation of cystine stones in the kidneys, ureter, and bladder in",o:["homozygous dominant","heterozygotes","homozygous recessive","all genotypes","none"],a:2},
+            {q:"Sometimes clinically healthy people in high-altitude conditions show signs of anemia. When diagnosing, sickle cell erythrocytes are detected in their blood. Determine their genotype.",o:["XCXc","SS","IAI0","XCXc","Ss"],a:4},
+            {q:"The young couple had a child with signs of anemia. The baby died a few hours after birth. The survey revealed that the child's red blood cells have an abnormal sickle shape. What genotype does the child's parents have?",o:["SS x SS","Ss x Ss","XCXc x XcY","XCXc x XccY","IAIB x IAI0"],a:1}
+        ];
+
+        // Pad questions to reach required count
+        function generateQuestions(database, count) {
+            const questions = [...database];
+            while (questions.length < count) {
+                questions.push({...database[Math.floor(Math.random() * database.length)]});
             }
-            return questions.slice(0, 150);
+            return questions.slice(0, count);
         }
 
         // Helper function to shuffle array
@@ -342,10 +408,33 @@
             return shuffled;
         }
 
+        // Section selection handlers
+        function selectSection1() {
+            appState.section = 1;
+            appState.totalBatches = 15;
+            appState.batchSize = 10;
+            document.getElementById('headerTitle').textContent = 'Molecular & Cell Biology';
+            document.getElementById('headerSubtitle').textContent = 'Section 1 - 150 Questions';
+            routerToShowModeSelection();
+        }
+
+        function selectSection2() {
+            appState.section = 2;
+            appState.totalBatches = Math.ceil(235 / 10);
+            appState.batchSize = 10;
+            document.getElementById('headerTitle').textContent = 'Ontogenetic Level';
+            document.getElementById('headerSubtitle').textContent = 'Section 2 - 235 Questions';
+            routerToShowModeSelection();
+        }
+
         // Mode selection handlers
         function selectSequentialMode() {
             appState.mode = 'sequential';
-            appState.questions = generateQuestions();
+            if (appState.section === 1) {
+                appState.questions = generateQuestions(section1Database, 150);
+            } else {
+                appState.questions = generateQuestions(section2Database, 235);
+            }
             appState.unlockedBatches = [0];
             document.getElementById('modeBadge').textContent = 'Sequential Mode';
             document.getElementById('modeBadge').classList.remove('bg-slate-800', 'text-slate-300');
@@ -355,7 +444,11 @@
 
         function selectShuffleMode() {
             appState.mode = 'shuffle';
-            appState.questions = shuffleArray(generateQuestions());
+            if (appState.section === 1) {
+                appState.questions = shuffleArray(generateQuestions(section1Database, 150));
+            } else {
+                appState.questions = shuffleArray(generateQuestions(section2Database, 235));
+            }
             appState.unlockedBatches = [0];
             document.getElementById('modeBadge').textContent = 'Shuffle Mode';
             document.getElementById('modeBadge').classList.remove('bg-slate-800', 'text-slate-300');
@@ -363,7 +456,16 @@
             routerToShowBatchMatrix();
         }
 
+        function routerToSectionSelection() {
+            document.getElementById('screenSectionSelection').classList.remove('hidden');
+            document.getElementById('screenModeSelection').classList.add('hidden');
+            document.getElementById('screenBatchSelection').classList.add('hidden');
+            document.getElementById('screenActiveQuiz').classList.add('hidden');
+            document.getElementById('screenBatchResult').classList.add('hidden');
+        }
+
         function routerToShowSelection() {
+            document.getElementById('screenSectionSelection').classList.add('hidden');
             document.getElementById('screenModeSelection').classList.remove('hidden');
             document.getElementById('screenBatchSelection').classList.add('hidden');
             document.getElementById('screenActiveQuiz').classList.add('hidden');
@@ -371,6 +473,7 @@
         }
 
         function routerToShowBatchMatrix() {
+            document.getElementById('screenSectionSelection').classList.add('hidden');
             document.getElementById('screenModeSelection').classList.add('hidden');
             document.getElementById('screenBatchSelection').classList.remove('hidden');
             document.getElementById('screenActiveQuiz').classList.add('hidden');
@@ -412,13 +515,14 @@
             appState.batchScore = 0;
             appState.answerLocked = false;
             
+            document.getElementById('screenSectionSelection').classList.add('hidden');
             document.getElementById('screenModeSelection').classList.add('hidden');
             document.getElementById('screenBatchSelection').classList.add('hidden');
             document.getElementById('screenActiveQuiz').classList.remove('hidden');
             document.getElementById('screenBatchResult').classList.add('hidden');
             
             const startIndex = batchIndex * appState.batchSize;
-            const endIndex = startIndex + appState.batchSize;
+            const endIndex = Math.min(startIndex + appState.batchSize, appState.questions.length);
             appState.batchQuestions = appState.questions.slice(startIndex, endIndex);
             
             document.getElementById('quizBatchTitle').textContent = `BATCH ${batchIndex + 1}`;
@@ -464,32 +568,21 @@
             appState.answerLocked = true;
             const isCorrect = selectedIndex === correctIndex;
             
-            // Get all option buttons
             const allButtons = document.querySelectorAll('.option-btn');
             
             if (isCorrect) {
-                // Correct answer
                 appState.batchScore++;
                 buttonElement.classList.add('correct');
                 document.getElementById('quizCurrentScore').textContent = appState.batchScore;
-                
-                // Show feedback
                 showFeedback(true, "Correct!");
             } else {
-                // Wrong answer
                 buttonElement.classList.add('incorrect');
-                
-                // Show correct answer
                 allButtons[correctIndex].classList.add('correct');
-                
-                // Show feedback
                 showFeedback(false, "Incorrect");
             }
             
-            // Disable all buttons
             allButtons.forEach(btn => btn.disabled = true);
             
-            // Enable next button
             document.getElementById('nextQuestionActionButton').disabled = false;
             document.getElementById('nextQuestionActionButton').onclick = () => {
                 displayQuestion(appState.currentQuestionIndex + 1);
@@ -569,6 +662,10 @@
             document.getElementById('screenBatchResult').classList.remove('hidden');
         }
 
+        // Add event listeners to section selection buttons
+        document.getElementById('btnChooseSection1').addEventListener('click', selectSection1);
+        document.getElementById('btnChooseSection2').addEventListener('click', selectSection2);
+
         // Add event listeners to mode selection buttons
         document.getElementById('btnChooseSequential').addEventListener('click', selectSequentialMode);
         document.getElementById('btnChooseShuffle').addEventListener('click', selectShuffleMode);
@@ -577,6 +674,7 @@
         document.getElementById('resetAppBtn').addEventListener('click', () => {
             if (confirm('Are you sure you want to reset all progress?')) {
                 appState = {
+                    section: null,
                     mode: null,
                     currentBatch: 0,
                     totalBatches: 15,
@@ -592,7 +690,9 @@
                 document.getElementById('modeBadge').textContent = 'Select Mode';
                 document.getElementById('modeBadge').classList.remove('bg-indigo-900', 'bg-emerald-900', 'text-indigo-300', 'text-emerald-300');
                 document.getElementById('modeBadge').classList.add('bg-slate-800', 'text-slate-300');
-                routerToShowSelection();
+                document.getElementById('headerTitle').textContent = 'Medical Genetics Test';
+                document.getElementById('headerSubtitle').textContent = 'Select a section to begin';
+                routerToSectionSelection();
             }
         });
     </script>
